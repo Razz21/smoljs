@@ -4,9 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "echo \"dev mode\""
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "workspaces": [
+    "packages/runtime"
+  ],
+  "devDependencies": {
+    "@types/node": "^18.17.0"
+  },
+  "engines": {
+    "node": "^18.17.0",
+    "npm": ">=9.0.0"
+  }
 }

@@ -1,0 +1,25 @@
+{
+  "name": "@simple-vue/runtime",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "dist/lib.js",
+  "module": "dist/lib.mjs",
+  "types": "dist/lib.d.ts",
+  "files": [
+    "dist"
+  ],
+  "license": "ISC",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.9.0",
+    "@typescript-eslint/parser": "^6.9.0",
+    "eslint": "^8.50.0",
+    "typescript": "^5.2.2",
+    "vite": "^4.5.0",
+    "vite-plugin-dts": "^3.6.3"
+  }
+}
