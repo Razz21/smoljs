@@ -9,12 +9,12 @@ import { isNotBlankOrEmptyString } from './utils/strings';
 import { addEventListener } from './events';
 import { Component } from './component';
 
-export function patchDOM<TVNode extends VNode>(
+export function patchDOM(
   oldVdom: VNode,
-  newVdom: TVNode,
+  newVdom: VNode,
   parentEl: Element,
   hostComponent?: Component
-): TVNode {
+) {
   if (!areNodesEqual(oldVdom, newVdom)) {
     const index = Array.from(parentEl.childNodes).indexOf(oldVdom.el);
     destroyDOM(oldVdom);
@@ -24,15 +24,15 @@ export function patchDOM<TVNode extends VNode>(
   newVdom.el = oldVdom.el;
   switch (newVdom.type) {
     case DOM_TYPES.TEXT: {
-      patchText(oldVdom as any, newVdom);
+      patchText(oldVdom as typeof newVdom, newVdom);
       return newVdom;
     }
     case DOM_TYPES.ELEMENT: {
-      patchElement(oldVdom as any, newVdom, hostComponent);
+      patchElement(oldVdom as typeof newVdom, newVdom, hostComponent);
       break;
     }
   }
-  patchChildren(oldVdom as any, newVdom, hostComponent);
+  patchChildren(oldVdom as typeof newVdom, newVdom, hostComponent);
 
   return newVdom;
 }

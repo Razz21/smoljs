@@ -6,8 +6,6 @@ export type ComponentParams<TProps, TState, TMethods> = {
   methods?: TMethods;
 };
 
-export type Component = any;
-
 export type ComponentInstance<TProps, TState, TMethods> = {
   state: TState;
   props: TProps;
@@ -21,3 +19,9 @@ export type ComponentInstance<TProps, TState, TMethods> = {
   get firstElement(): Element | Text;
   get elements(): (Element | Text)[];
 } & TMethods;
+
+export type Component<TProps = unknown, TState = unknown, TMethods = unknown> = ComponentInstance<
+  TProps,
+  TState,
+  TMethods
+>;

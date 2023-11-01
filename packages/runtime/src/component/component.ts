@@ -12,7 +12,7 @@ export function defineComponent<TProps, TState, TMethods>({
 }: ComponentParams<TProps, TState, TMethods> & ThisType<ComponentInstance<TProps, TState, TMethods>>): new (
   props?: TProps
 ) => ComponentInstance<TProps, TState, TMethods> {
-  class Component implements ComponentInstance<TProps, TState, any> {
+  class Component implements ComponentInstance<TProps, TState, object> {
     #isMounted = false;
     #vdom: VNode = null;
     #hostEl: Element = null;
