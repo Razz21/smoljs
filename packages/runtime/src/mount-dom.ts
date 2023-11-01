@@ -1,9 +1,9 @@
 import { setAttributes } from './attributes';
-import { Component } from './component';
+import { ComponentClassInstance } from './component';
 import { addEventListeners } from './events';
-import { DOM_TYPES, ElementVNode, ElementVNodeProps, FragmentVNode, TextVNode, VNode } from './h';
+import { ComponentVNode, DOM_TYPES, ElementVNode, VNodeProps, FragmentVNode, TextVNode, VNode } from './h';
 
-export function mountDOM(vdom: VNode, parentEl: Element, index?: number, hostComponent?: Component) {
+export function mountDOM(vdom: VNode, parentEl: Element, index?: number, hostComponent?: ComponentClassInstance) {
   switch (vdom.type) {
     case DOM_TYPES.TEXT: {
       createTextNode(vdom, parentEl, index);
@@ -15,6 +15,10 @@ export function mountDOM(vdom: VNode, parentEl: Element, index?: number, hostCom
     }
     case DOM_TYPES.FRAGMENT: {
       createFragmentNodes(vdom, parentEl, index, hostComponent);
+      break;
+    }
+    case DOM_TYPES.COMPONENT: {
+      createComponentNode(vdom, parentEl, index);
       break;
     }
     default: {
@@ -35,7 +39,7 @@ function createElementNode<VDom extends ElementVNode<any>>(
   vdom: VDom,
   parentEl: Element,
   index: number,
-  hostComponent?: Component
+  hostComponent?: ComponentClassInstance
 ) {
   const { tag, props, children } = vdom;
   const element = document.createElement(tag);
@@ -45,17 +49,37 @@ function createElementNode<VDom extends ElementVNode<any>>(
   insert(element, parentEl, index);
 }
 
-function addProps(el: Element, props: ElementVNodeProps, vdom: ElementVNode<any>, hostComponent?: Component) {
+function addProps(
+  el: Element,
+  props: VNodeProps,
+  vdom: ElementVNode<any>,
+  hostComponent?: ComponentClassInstance
+) {
   const { on: events, ...attrs } = props;
 
   vdom.listeners = addEventListeners(events, el, hostComponent);
   setAttributes(el, attrs as any);
 }
 
-function createFragmentNodes(vdom: FragmentVNode, parentEl: Element, index: number, hostComponent?: Component) {
+function createFragmentNodes(
+  vdom: FragmentVNode,
+  parentEl: Element,
+  index: number,
+  hostComponent?: ComponentClassInstance
+) {
   const { children } = vdom;
   vdom.el = parentEl;
   children.forEach((child, i) => mountDOM(child, parentEl, index ? index + i : null, hostComponent));
+}
+
+function createComponentNode(vdom: ComponentVNode, parentEl: Element, index: number) {
+  const Component = vdom.tag;
+  const props = vdom.props;
+  const component = new Component(props);
+
+  component.mount(parentEl, index);
+  vdom.component = component;
+  vdom.el = component.firstElement;
 }
 
 export function insert(el: Node, parentEl: Element, index?: any) {

@@ -1,3 +1,4 @@
+import { Component, ComponentClassInstance } from './component';
 import { AnyFunction } from './types';
 import { withoutNulls } from './utils/arrays';
 
@@ -5,6 +6,7 @@ export const DOM_TYPES = {
   TEXT: 'text',
   ELEMENT: 'element',
   FRAGMENT: 'fragment',
+  COMPONENT: 'component',
 } as const;
 
 export type ElementTag = keyof HTMLElementTagNameMap;
@@ -27,36 +29,58 @@ export type FragmentVNode = {
   el?: Element;
 };
 
-export type ElementVNodeProps = {
+export type VNodeProps<T> = {
   class?: string | string[];
   style?: Record<string, string>;
   on?: Events;
-};
+} & T;
 
 export type ElementVNodeListeners = Record<string, AnyFunction>;
 
 export type ElementVNode<Tag extends ElementTag> = {
   tag: Tag;
   type: typeof DOM_TYPES.ELEMENT;
-  props: ElementVNodeProps;
+  props: VNodeProps<{}>;
   children?: VNode[];
   el?: Element;
   listeners?: ElementVNodeListeners;
 };
 
-export type VNode = TextVNode | FragmentVNode | ElementVNode<any>;
+export type ComponentVNode<TProps, TState, TMethods> = {
+  tag: Component<TProps, TState, TMethods>;
+  type: typeof DOM_TYPES.COMPONENT;
+  props: VNodeProps<TProps>;
+  children?: VNode[];
+  component?: ComponentClassInstance<TProps, TState, TMethods>;
+  el?: Element | Text;
+};
 
-export function h<Tag extends ElementTag>(
-  tag: Tag,
-  props: ElementVNodeProps = {},
-  children: ChildrenVNode[] = []
-): ElementVNode<Tag> {
+export type VNode = TextVNode | FragmentVNode | ElementVNode<any> | ComponentVNode<any, any, any>;
+
+export type InferProps<T> = T extends Component<infer Props, any, any> ? Props : never;
+
+export function h<TComponent extends Component<any, any, any>>(
+  tag: TComponent,
+  props?: VNodeProps<InferProps<TComponent>> | null,
+  children?: ChildrenVNode[] | null
+): ComponentVNode<any, any, any>;
+export function h<TComponent extends ElementTag>(
+  tag: TComponent,
+  props?: VNodeProps<{}> | null,
+  children?: ChildrenVNode[] | null
+): ElementVNode<ElementTag>;
+export function h<TComponent = any>(
+  tag: TComponent,
+  props: VNodeProps<unknown> | null = {},
+  children: ChildrenVNode[] | null = []
+) {
+  const type = typeof tag === 'string' ? DOM_TYPES.ELEMENT : DOM_TYPES.COMPONENT;
   return {
     tag,
-    props,
-    children: mapTextNodes(withoutNulls(children)),
-    type: DOM_TYPES.ELEMENT,
-  };
+    type,
+    props: props ?? {},
+    children: mapTextNodes(withoutNulls(children ?? [])),
+  } as any;
 }
 
 export function mapTextNodes(children: ChildrenVNode[]): VNode[] {

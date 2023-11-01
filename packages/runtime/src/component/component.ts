@@ -3,16 +3,18 @@ import { DOM_TYPES, extractChildren, VNode } from '@/h';
 import { mountDOM } from '@/mount-dom';
 import { patchDOM } from '@/patch-dom';
 import { hasOwnProperty } from '@/utils/objects';
-import { ComponentInstance, ComponentParams } from '.';
+import { Component, ComponentClassInstance, ComponentParams } from './types';
 
 export function defineComponent<TProps, TState, TMethods>({
   render,
   state,
   methods,
-}: ComponentParams<TProps, TState, TMethods> & ThisType<ComponentInstance<TProps, TState, TMethods>>): new (
-  props?: TProps
-) => ComponentInstance<TProps, TState, TMethods> {
-  class Component implements ComponentInstance<TProps, TState, object> {
+}: ComponentParams<TProps, TState, TMethods> & ThisType<ComponentClassInstance<TProps, TState, TMethods>>): Component<
+  TProps,
+  TState,
+  TMethods
+> {
+  class BaseComponent implements ComponentClassInstance<TProps, TState> {
     #isMounted = false;
     #vdom: VNode = null;
     #hostEl: Element = null;
@@ -30,7 +32,13 @@ export function defineComponent<TProps, TState, TMethods>({
         return [];
       }
       if (this.#vdom.type === DOM_TYPES.FRAGMENT) {
-        return extractChildren(this.#vdom).map((child) => child.el);
+        // return extractChildren(this.#vdom).map((child) => child.el);
+        return extractChildren(this.#vdom).flatMap((child) => {
+          if (child.type === DOM_TYPES.COMPONENT) {
+            return child.component.elements;
+          }
+          return child.el;
+        });
       }
       return [this.#vdom.el];
     }
@@ -44,6 +52,11 @@ export function defineComponent<TProps, TState, TMethods>({
       return 0;
     }
 
+    updateProps(props: Partial<TProps>) {
+      // TODO test for equality
+      this.props = { ...this.props, ...props };
+      this.#patch();
+    }
     updateState(state: Partial<TState>) {
       this.state = { ...this.state, ...state };
       this.#patch();
@@ -78,11 +91,11 @@ export function defineComponent<TProps, TState, TMethods>({
     }
   }
   for (const methodName in methods) {
-    if (hasOwnProperty(Component, methodName)) {
+    if (hasOwnProperty(BaseComponent, methodName)) {
       throw new Error(`Method "${methodName}()" already exists in the component. Can't override`);
     }
-    (Component.prototype as any)[methodName] = methods[methodName];
+    (BaseComponent.prototype as any)[methodName] = methods[methodName];
   }
 
-  return Component as new (...args: any[]) => Component & TMethods;
+  return BaseComponent as new (...args: any[]) => BaseComponent & TMethods;
 }

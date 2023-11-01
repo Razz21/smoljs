@@ -6,21 +6,28 @@ export type ComponentParams<TProps, TState, TMethods> = {
   methods?: TMethods;
 };
 
-export type ComponentInstance<TProps, TState, TMethods> = {
+export interface ComponentInstance<TProps, TState> {
   state: TState;
   props: TProps;
 
   mount(hostEl: Element, index?: number): void;
   unmount(): void;
-  render(props: TProps): VNode;
+  render(): VNode;
   updateState(state: Partial<TState>): void;
+  updateProps(state: Partial<TProps>): void;
 
   get offset(): number;
   get firstElement(): Element | Text;
   get elements(): (Element | Text)[];
-} & TMethods;
+}
 
-export type Component<TProps = unknown, TState = unknown, TMethods = unknown> = ComponentInstance<
+export type ComponentClassInstance<TProps = unknown, TState = unknown, TMethods = unknown> = ComponentInstance<
+  TProps,
+  TState
+> &
+  TMethods;
+
+export type Component<TProps, TState, TMethods> = new (props?: TProps) => ComponentClassInstance<
   TProps,
   TState,
   TMethods
