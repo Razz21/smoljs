@@ -1,4 +1,4 @@
-import { areNodesEqual } from './nodex-equal';
+import { areNodesEqual } from './nodes-equal';
 import { destroyDOM } from './destroy-dom';
 import { mountDOM } from './mount-dom';
 import { DOM_TYPES, ElementVNode, FragmentVNode, TextVNode, VNode, extractChildren } from './h';
@@ -9,7 +9,12 @@ import { isNotBlankOrEmptyString } from './utils/strings';
 import { addEventListener } from './events';
 import { Component } from './component';
 
-export function patchDOM(oldVdom: VNode, newVdom: VNode, parentEl: HTMLElement, hostComponent?: Component) {
+export function patchDOM<TVNode extends VNode>(
+  oldVdom: VNode,
+  newVdom: TVNode,
+  parentEl: Element,
+  hostComponent?: Component
+): TVNode {
   if (!areNodesEqual(oldVdom, newVdom)) {
     const index = Array.from(parentEl.childNodes).indexOf(oldVdom.el);
     destroyDOM(oldVdom);
@@ -41,7 +46,7 @@ function patchText(oldVdom: TextVNode, newVdom: TextVNode) {
   }
 }
 
-function patchElement(oldVdom: ElementVNode, newVdom: ElementVNode, hostComponent?: Component) {
+function patchElement(oldVdom: ElementVNode<any>, newVdom: ElementVNode<any>, hostComponent?: Component) {
   const el = oldVdom.el;
   const { class: oldClass, style: oldStyle, on: oldEvents, ...oldAttrs } = oldVdom.props;
   const { class: newClass, style: newStyle, on: newEvents, ...newAttrs } = newVdom.props;
@@ -53,7 +58,7 @@ function patchElement(oldVdom: ElementVNode, newVdom: ElementVNode, hostComponen
   newVdom.listeners = patchEvents(el, oldListeners, oldEvents, newEvents, hostComponent);
 }
 
-function patchAttrs(el: HTMLElement, oldAttrs: Record<string, any>, newAttrs: Record<string, any>) {
+function patchAttrs(el: Element, oldAttrs: Record<string, any>, newAttrs: Record<string, any>) {
   const { added, removed, updated } = objectsDiff(oldAttrs, newAttrs);
   for (const attr of removed) {
     removeAttribute(el, attr);
@@ -64,7 +69,7 @@ function patchAttrs(el: HTMLElement, oldAttrs: Record<string, any>, newAttrs: Re
   }
 }
 
-function patchClasses(el: HTMLElement, oldClass: string | string[], newClass: string | string[]) {
+function patchClasses(el: Element, oldClass: string | string[], newClass: string | string[]) {
   const oldClasses = toClassList(oldClass);
   const newClasses = toClassList(newClass);
 
@@ -77,7 +82,7 @@ function patchClasses(el: HTMLElement, oldClass: string | string[], newClass: st
   }
 }
 
-function patchStyles(el: HTMLElement, oldStyle: Record<string, string>, newStyle: Record<string, string>) {
+function patchStyles(el: Element, oldStyle: Record<string, string>, newStyle: Record<string, string>) {
   const { added, removed, updated } = objectsDiff(oldStyle, newStyle);
   for (const style of removed) {
     removeStyle(el, style);
@@ -88,7 +93,7 @@ function patchStyles(el: HTMLElement, oldStyle: Record<string, string>, newStyle
 }
 
 function patchEvents(
-  el: HTMLElement,
+  el: Element,
   oldListeners: Record<string, any> = {},
   oldEvents: Record<string, any> = {},
   newEvents: Record<string, any> = {},
@@ -113,8 +118,8 @@ function toClassList(classes: string | string[] = '') {
 }
 
 function patchChildren(
-  oldVdom: FragmentVNode | ElementVNode,
-  newVdom: FragmentVNode | ElementVNode,
+  oldVdom: FragmentVNode | ElementVNode<any>,
+  newVdom: FragmentVNode | ElementVNode<any>,
   hostComponent?: Component
 ) {
   const oldChildren = extractChildren(oldVdom);

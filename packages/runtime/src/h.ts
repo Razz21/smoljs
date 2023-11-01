@@ -8,8 +8,8 @@ export const DOM_TYPES = {
 } as const;
 
 export type ElementTag = keyof HTMLElementTagNameMap;
-// @ts-ignore
-export type EventsOf<T extends ElementTag> = {
+
+export type Events = {
   [K in keyof HTMLElementEventMap]?: (event?: HTMLElementEventMap[K]) => any;
 };
 
@@ -24,31 +24,31 @@ export type TextVNode = {
 export type FragmentVNode = {
   type: typeof DOM_TYPES.FRAGMENT;
   children: VNode[];
-  el?: HTMLElement;
+  el?: Element;
 };
 
-export type ElementVNodeProps<Tag extends ElementTag = any> = {
+export type ElementVNodeProps = {
   class?: string | string[];
   style?: Record<string, string>;
-  on?: EventsOf<Tag>;
+  on?: Events;
 };
 
 export type ElementVNodeListeners = Record<string, AnyFunction>;
 
-export type ElementVNode<Tag extends ElementTag = any> = {
+export type ElementVNode<Tag extends ElementTag> = {
   tag: Tag;
   type: typeof DOM_TYPES.ELEMENT;
-  props: ElementVNodeProps<Tag>;
+  props: ElementVNodeProps;
   children?: VNode[];
-  el?: HTMLElement;
+  el?: Element;
   listeners?: ElementVNodeListeners;
 };
 
-export type VNode = TextVNode | FragmentVNode | ElementVNode;
+export type VNode = TextVNode | FragmentVNode | ElementVNode<any>;
 
 export function h<Tag extends ElementTag>(
   tag: Tag,
-  props: ElementVNodeProps<Tag> = {},
+  props: ElementVNodeProps = {},
   children: ChildrenVNode[] = []
 ): ElementVNode<Tag> {
   return {
@@ -77,11 +77,11 @@ export function hFragment(vNodes: ChildrenVNode[]): FragmentVNode {
   };
 }
 
-export function extractChildren(vdom: FragmentVNode | ElementVNode): VNode[] {
+export function extractChildren(vdom: FragmentVNode | ElementVNode<any>): VNode[] {
   if (vdom.children == null) {
     return [];
   }
-  const children = [];
+  const children: VNode[] = [];
 
   for (const child of vdom.children) {
     if (child.type === DOM_TYPES.FRAGMENT) {

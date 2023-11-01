@@ -5,7 +5,7 @@ import { AnyFunction } from './types';
 export function addEventListener(
   eventName: string,
   handler: AnyFunction,
-  el: HTMLElement,
+  el: Element,
   hostComponent: Component = null
 ) {
   function boundHandler(...args: Parameters<AnyFunction>) {
@@ -15,11 +15,7 @@ export function addEventListener(
   return boundHandler;
 }
 
-export function addEventListeners(
-  listeners: ElementVNodeListeners = {},
-  el: HTMLElement,
-  hostComponent: Component = null
-) {
+export function addEventListeners(listeners: ElementVNodeListeners = {}, el: Element, hostComponent: Component = null) {
   const addedListeners: ElementVNodeListeners = {};
   Object.entries(listeners).forEach(([eventName, handler]) => {
     const listener = addEventListener(eventName, handler, el, hostComponent);
@@ -28,7 +24,7 @@ export function addEventListeners(
   return addedListeners;
 }
 
-export function removeEventListeners(listeners: ElementVNodeListeners, el: HTMLElement) {
+export function removeEventListeners(listeners: ElementVNodeListeners, el: Element) {
   Object.entries(listeners).forEach(([eventName, handler]) => {
     el.removeEventListener(eventName, handler);
   });

@@ -3,7 +3,7 @@ import { Component } from './component';
 import { addEventListeners } from './events';
 import { DOM_TYPES, ElementVNode, ElementVNodeProps, FragmentVNode, TextVNode, VNode } from './h';
 
-export function mountDOM(vdom: VNode, parentEl: HTMLElement, index?: number, hostComponent?: Component) {
+export function mountDOM(vdom: VNode, parentEl: Element, index?: number, hostComponent?: Component) {
   switch (vdom.type) {
     case DOM_TYPES.TEXT: {
       createTextNode(vdom, parentEl, index);
@@ -23,7 +23,7 @@ export function mountDOM(vdom: VNode, parentEl: HTMLElement, index?: number, hos
   }
 }
 
-function createTextNode(vdom: TextVNode, parentEl: HTMLElement, index?: number) {
+function createTextNode(vdom: TextVNode, parentEl: Element, index?: number) {
   const { value } = vdom;
   const textNode = document.createTextNode(value);
   vdom.el = textNode;
@@ -31,7 +31,12 @@ function createTextNode(vdom: TextVNode, parentEl: HTMLElement, index?: number) 
   insert(textNode, parentEl, index);
 }
 
-function createElementNode(vdom: ElementVNode, parentEl: HTMLElement, index: number, hostComponent?: Component) {
+function createElementNode<VDom extends ElementVNode<any>>(
+  vdom: VDom,
+  parentEl: Element,
+  index: number,
+  hostComponent?: Component
+) {
   const { tag, props, children } = vdom;
   const element = document.createElement(tag);
   addProps(element, props, vdom, hostComponent);
@@ -40,20 +45,20 @@ function createElementNode(vdom: ElementVNode, parentEl: HTMLElement, index: num
   insert(element, parentEl, index);
 }
 
-function addProps(el: HTMLElement, props: ElementVNodeProps, vdom: ElementVNode, hostComponent?: Component) {
+function addProps(el: Element, props: ElementVNodeProps, vdom: ElementVNode<any>, hostComponent?: Component) {
   const { on: events, ...attrs } = props;
 
   vdom.listeners = addEventListeners(events, el, hostComponent);
   setAttributes(el, attrs as any);
 }
 
-function createFragmentNodes(vdom: FragmentVNode, parentEl: HTMLElement, index: number, hostComponent?: Component) {
+function createFragmentNodes(vdom: FragmentVNode, parentEl: Element, index: number, hostComponent?: Component) {
   const { children } = vdom;
   vdom.el = parentEl;
   children.forEach((child, i) => mountDOM(child, parentEl, index ? index + i : null, hostComponent));
 }
 
-export function insert(el: Node, parentEl: HTMLElement, index?: any) {
+export function insert(el: Node, parentEl: Element, index?: any) {
   if (index == null) {
     parentEl.append(el);
     return;

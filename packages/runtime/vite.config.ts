@@ -1,21 +1,27 @@
-import { resolve } from "path";
-import { defineConfig } from "vite";
-import dts from "vite-plugin-dts";
+import path, { resolve } from 'path';
+import { defineConfig } from 'vite';
+import dts from 'vite-plugin-dts';
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
   plugins: [
     dts({
       insertTypesEntry: true,
     }),
   ],
   build: {
+    sourcemap: true,
     lib: {
       // Could also be a dictionary or array of multiple entry points
-      entry: resolve(__dirname, "src/index.ts"),
-      name: "SimpleVue",
+      entry: resolve(__dirname, 'src/index.ts'),
+      name: 'SimpleVue',
       // the proper extensions will be added
-      fileName: "lib",
-      formats: ["cjs", "es"],
+      fileName: 'lib',
+      formats: ['cjs', 'es', 'umd'],
     },
   },
 });

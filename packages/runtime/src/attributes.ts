@@ -5,11 +5,11 @@ type Attributes = {
   style: Record<string, string>;
 } & HtmlAttribute;
 
-export type GenericHTMLElement = HTMLElement & Record<string, any>;
+export type GenericElement = Element & Record<string, any>;
 
-export type HtmlAttribute<T extends GenericHTMLElement = GenericHTMLElement> = T;
+export type HtmlAttribute<T extends GenericElement = GenericElement> = T;
 
-export function setAttributes(el: GenericHTMLElement, attrs: Attributes) {
+export function setAttributes(el: GenericElement, attrs: Attributes) {
   const { class: className, style, ...otherAttrs } = attrs;
 
   if (className) {
@@ -25,7 +25,7 @@ export function setAttributes(el: GenericHTMLElement, attrs: Attributes) {
   }
 }
 
-export function setClass(el: GenericHTMLElement, className: string | string[]) {
+export function setClass(el: GenericElement, className: string | string[]) {
   el.className = '';
   if (typeof className === 'string') {
     el.className = className;
@@ -34,14 +34,14 @@ export function setClass(el: GenericHTMLElement, className: string | string[]) {
     el.classList.add(...className);
   }
 }
-export function setStyle(el: GenericHTMLElement, name: string, value: string) {
+export function setStyle(el: GenericElement, name: string, value: string) {
   el.style[name as any] = value;
 }
-export function removeStyle(el: GenericHTMLElement, name: string) {
+export function removeStyle(el: GenericElement, name: string) {
   el.style[name as any] = null;
 }
 export function setAttribute<TAttr extends keyof HtmlAttribute>(
-  el: GenericHTMLElement,
+  el: GenericElement,
   name: TAttr,
   value: HtmlAttribute[TAttr] | null
 ) {
@@ -54,7 +54,7 @@ export function setAttribute<TAttr extends keyof HtmlAttribute>(
   }
 }
 
-export function removeAttribute<TAttr extends keyof HtmlAttribute>(el: GenericHTMLElement, name: TAttr) {
+export function removeAttribute<TAttr extends keyof HtmlAttribute>(el: GenericElement, name: TAttr) {
   el[name] = null;
   el.removeAttribute(name);
 }

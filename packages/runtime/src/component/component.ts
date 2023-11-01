@@ -1,33 +1,30 @@
-import { destroyDOM } from './destroy-dom';
-import { VNode, DOM_TYPES, extractChildren } from './h';
-import { mountDOM } from './mount-dom';
-import { patchDOM } from './patch-dom';
-import { AnyFunction } from './types/index';
-import { hasOwnProperty } from './utils/objects';
+import { destroyDOM } from '@/destroy-dom';
+import { DOM_TYPES, extractChildren, VNode } from '@/h';
+import { mountDOM } from '@/mount-dom';
+import { patchDOM } from '@/patch-dom';
+import { hasOwnProperty } from '@/utils/objects';
+import { ComponentInstance, ComponentParams } from '.';
 
-type ComponentParams<TProps, TState, TMethods> = {
-  render: (props: TProps) => VNode;
-  state?: (props: TProps) => TState;
-  methods?: TMethods;
-};
-
-export type Component = any;
-
-export function defineComponent<
-  TProps extends Readonly<Record<string, any>>,
-  TState extends Record<string, any>,
-  TMethods extends Record<string, AnyFunction>
->({ render, state, methods }: ComponentParams<TProps, TState, TMethods> & ThisType<TState & TMethods>) {
-  class Component {
+export function defineComponent<TProps, TState, TMethods>({
+  render,
+  state,
+  methods,
+}: ComponentParams<TProps, TState, TMethods> & ThisType<ComponentInstance<TProps, TState, TMethods>>): new (
+  props?: TProps
+) => ComponentInstance<TProps, TState, TMethods> {
+  class Component implements ComponentInstance<TProps, TState, any> {
     #isMounted = false;
     #vdom: VNode = null;
-    #hostEl: HTMLElement = null;
+    #hostEl: Element = null;
 
     state: TState;
+    props: TProps;
 
-    constructor(public props: TProps = {} as TProps) {
+    constructor(props?: TProps) {
       this.state = state ? state(props) : ({} as TState);
+      this.props = props ?? ({} as TProps);
     }
+
     get elements() {
       if (this.#vdom == null) {
         return [];
@@ -37,15 +34,12 @@ export function defineComponent<
       }
       return [this.#vdom.el];
     }
-
     get firstElement() {
       return this.elements[0];
     }
-
     get offset() {
       if (this.#vdom.type === DOM_TYPES.FRAGMENT) {
-        // FIXME types
-        return Array.from(this.#hostEl.children).indexOf(this.firstElement as Element);
+        return Array.from(this.#hostEl.childNodes).indexOf(this.firstElement);
       }
       return 0;
     }
@@ -54,10 +48,10 @@ export function defineComponent<
       this.state = { ...this.state, ...state };
       this.#patch();
     }
-    render() {
+    render(): VNode {
       return render.call(this, this.props);
     }
-    mount(hostEl: HTMLElement, index: number = null) {
+    mount(hostEl: Element, index: number = null) {
       if (this.#isMounted) {
         throw new Error('Component is mounted');
       }
@@ -89,5 +83,6 @@ export function defineComponent<
     }
     (Component.prototype as any)[methodName] = methods[methodName];
   }
-  return Component;
+
+  return Component as new (...args: any[]) => Component & TMethods;
 }

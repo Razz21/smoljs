@@ -13,7 +13,7 @@ type CreateAppParams<TState extends Record<string, any> = Record<string, any>> =
 };
 
 export function createApp({ state, view, reducers = {} }: CreateAppParams) {
-  let parentEl: HTMLElement = null;
+  let parentEl: Element = null;
   let vdom: VNode = null;
   let isMounted = false;
 
@@ -38,7 +38,7 @@ export function createApp({ state, view, reducers = {} }: CreateAppParams) {
   }
 
   return {
-    mount(_parentEl: HTMLElement) {
+    mount(_parentEl: Element) {
       if (isMounted) {
         throw new Error('App is already mounted!'); // Ex. 7.2
       }

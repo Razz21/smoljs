@@ -2,15 +2,21 @@
   "name": "@simple-vue/runtime",
   "version": "0.0.1",
   "type": "module",
-  "main": "dist/lib.js",
-  "module": "dist/lib.mjs",
+  "main": "dist/lib.umd.cjs",
+  "module": "dist/lib.js",
   "types": "dist/lib.d.ts",
   "files": [
     "dist"
   ],
+  "exports": {
+    ".": {
+      "import": "./dist/lib.js",
+      "require": "./dist/lib.umd.cjs"
+    }
+  },
   "license": "ISC",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite build --watch",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
