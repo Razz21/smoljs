@@ -1,8 +1,7 @@
 {
-  "name": "simple-vue",
+  "name": "@simple-vue/monorepo",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "dev": "echo \"dev mode\""
   },
@@ -10,7 +9,8 @@
   "author": "",
   "license": "ISC",
   "workspaces": [
-    "packages/runtime"
+    "packages/*",
+    "apps/*"
   ],
   "devDependencies": {
     "@types/node": "^18.17.0"
