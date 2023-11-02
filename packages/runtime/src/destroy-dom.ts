@@ -32,7 +32,7 @@ function removeTextNode(vdom: TextVNode) {
   el.remove();
 }
 
-function removeElement(vdom: ElementVNode<any>) {
+function removeElement(vdom: ElementVNode) {
   const { el, children, listeners } = vdom;
   el.remove();
   children.forEach(destroyDOM);

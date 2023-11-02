@@ -1,4 +1,4 @@
-import { ComponentClassInstance } from './component';
+import { Component } from './component';
 import { ElementVNodeListeners } from './h';
 import { AnyFunction } from './types';
 
@@ -6,7 +6,7 @@ export function addEventListener(
   eventName: string,
   handler: AnyFunction,
   el: Element,
-  hostComponent: ComponentClassInstance = null
+  hostComponent: Component<unknown, unknown> = null
 ) {
   function boundHandler(...args: Parameters<AnyFunction>) {
     hostComponent ? handler.apply(hostComponent, args) : handler(...args);
@@ -18,7 +18,7 @@ export function addEventListener(
 export function addEventListeners(
   listeners: ElementVNodeListeners = {},
   el: Element,
-  hostComponent: ComponentClassInstance = null
+  hostComponent: Component<unknown, unknown> = null
 ) {
   const addedListeners: ElementVNodeListeners = {};
   Object.entries(listeners).forEach(([eventName, handler]) => {

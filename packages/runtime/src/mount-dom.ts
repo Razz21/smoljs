@@ -1,9 +1,9 @@
 import { setAttributes } from './attributes';
-import { ComponentClassInstance } from './component';
+import { Component } from './component';
 import { addEventListeners } from './events';
 import { ComponentVNode, DOM_TYPES, ElementVNode, VNodeProps, FragmentVNode, TextVNode, VNode } from './h';
 
-export function mountDOM(vdom: VNode, parentEl: Element, index?: number, hostComponent?: ComponentClassInstance) {
+export function mountDOM(vdom: VNode, parentEl: Element, index?: number, hostComponent?: Component<unknown, unknown>) {
   switch (vdom.type) {
     case DOM_TYPES.TEXT: {
       createTextNode(vdom, parentEl, index);
@@ -35,11 +35,11 @@ function createTextNode(vdom: TextVNode, parentEl: Element, index?: number) {
   insert(textNode, parentEl, index);
 }
 
-function createElementNode<VDom extends ElementVNode<any>>(
+function createElementNode<VDom extends ElementVNode>(
   vdom: VDom,
   parentEl: Element,
   index: number,
-  hostComponent?: ComponentClassInstance
+  hostComponent?: Component<unknown, unknown>
 ) {
   const { tag, props, children } = vdom;
   const element = document.createElement(tag);
@@ -51,9 +51,9 @@ function createElementNode<VDom extends ElementVNode<any>>(
 
 function addProps(
   el: Element,
-  props: VNodeProps,
-  vdom: ElementVNode<any>,
-  hostComponent?: ComponentClassInstance
+  props: VNodeProps<object>,
+  vdom: ElementVNode,
+  hostComponent?: Component<unknown, unknown>
 ) {
   const { on: events, ...attrs } = props;
 
@@ -65,14 +65,14 @@ function createFragmentNodes(
   vdom: FragmentVNode,
   parentEl: Element,
   index: number,
-  hostComponent?: ComponentClassInstance
+  hostComponent?: Component<unknown, unknown>
 ) {
   const { children } = vdom;
   vdom.el = parentEl;
   children.forEach((child, i) => mountDOM(child, parentEl, index ? index + i : null, hostComponent));
 }
 
-function createComponentNode(vdom: ComponentVNode, parentEl: Element, index: number) {
+function createComponentNode(vdom: ComponentVNode<unknown, unknown>, parentEl: Element, index: number) {
   const Component = vdom.tag;
   const props = vdom.props;
   const component = new Component(props);

@@ -1,10 +1,24 @@
 import './style.css';
-import { defineComponent, h } from '@simple-vue/runtime';
+import { defineComponent, h, hFragment } from '@simple-vue/runtime';
 
 type FlyingButtonProps = {
   width: number;
   height: number;
 };
+
+const BaseButton = defineComponent({
+  state() {
+    return {
+      count: 1,
+    };
+  },
+  render(props: { text: string }) {
+    return h('button', null, [props.text]);
+  },
+  onMounted() {
+    console.log('mounted');
+  },
+});
 
 const FlyingButton = defineComponent({
   state({ width, height }: FlyingButtonProps) {
@@ -18,7 +32,8 @@ const FlyingButton = defineComponent({
       return num + 'px';
     },
   },
-  render({ height, width }) {
+  render() {
+    const { height, width } = this.props;
     const { x, y } = this.state;
 
     const button = h(
@@ -40,9 +55,11 @@ const FlyingButton = defineComponent({
       },
       [`Move ${x} ${y}`]
     );
-    return button;
+    const basebutton2 = h(BaseButton, { text: 'button text content' });
+
+    return hFragment([button, basebutton2]);
   },
 });
 
-const element = new FlyingButton({ width: 100, height: 50 });
+const element = new FlyingButton({ width: 200, height: 150 });
 element.mount(document.querySelector('#app')!);

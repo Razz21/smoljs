@@ -1,4 +1,4 @@
-import { Component, ComponentClassInstance } from './component';
+import { Component, ComponentInstance, InferProps } from './component';
 import { AnyFunction } from './types';
 import { withoutNulls } from './utils/arrays';
 
@@ -37,36 +37,36 @@ export type VNodeProps<T> = {
 
 export type ElementVNodeListeners = Record<string, AnyFunction>;
 
-export type ElementVNode<Tag extends ElementTag> = {
+export type ElementVNode<Tag extends ElementTag = any> = {
   tag: Tag;
   type: typeof DOM_TYPES.ELEMENT;
-  props: VNodeProps<{}>;
+  // TODO infer Props
+  props: VNodeProps<object>;
   children?: VNode[];
   el?: Element;
   listeners?: ElementVNodeListeners;
 };
 
-export type ComponentVNode<TProps, TState, TMethods> = {
-  tag: Component<TProps, TState, TMethods>;
+export type ComponentVNode<TProps, TState> = {
+  tag: ComponentInstance<TProps, TState, any>;
   type: typeof DOM_TYPES.COMPONENT;
   props: VNodeProps<TProps>;
+  component?: Component<TProps, TState>;
   children?: VNode[];
-  component?: ComponentClassInstance<TProps, TState, TMethods>;
-  el?: Element | Text;
+  el?: Element;
 };
 
-export type VNode = TextVNode | FragmentVNode | ElementVNode<any> | ComponentVNode<any, any, any>;
+export type VNode = TextVNode | FragmentVNode | ElementVNode | ComponentVNode<any, any>;
 
-export type InferProps<T> = T extends Component<infer Props, any, any> ? Props : never;
-
-export function h<TComponent extends Component<any, any, any>>(
+export function h<TComponent extends ComponentInstance<any, any, any>>(
   tag: TComponent,
   props?: VNodeProps<InferProps<TComponent>> | null,
   children?: ChildrenVNode[] | null
-): ComponentVNode<any, any, any>;
+): ComponentVNode<any, any>;
 export function h<TComponent extends ElementTag>(
   tag: TComponent,
-  props?: VNodeProps<{}> | null,
+  // TODO infer Props
+  props?: VNodeProps<object> | null,
   children?: ChildrenVNode[] | null
 ): ElementVNode<ElementTag>;
 export function h<TComponent = any>(
@@ -101,7 +101,7 @@ export function hFragment(vNodes: ChildrenVNode[]): FragmentVNode {
   };
 }
 
-export function extractChildren(vdom: FragmentVNode | ElementVNode<any>): VNode[] {
+export function extractChildren(vdom: FragmentVNode | ElementVNode): VNode[] {
   if (vdom.children == null) {
     return [];
   }
