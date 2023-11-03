@@ -1,7 +1,7 @@
 import { hasOwnProperty } from '@/utils/objects';
 import { ComponentInstance, DefineComponentArgs } from './types';
 import { Component } from './component';
-import { noOp } from '@/dispatcher';
+import { noOp } from '@/utils/functions';
 
 export function defineComponent<TProps, TState, TMethods>({
   render,

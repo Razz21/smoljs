@@ -15,7 +15,11 @@ export function createApp<TProps>(RootComponent: ComponentInstance<TProps>, prop
   }
 
   return {
-    mount(_parentEl: Element) {
+    mount(_parentEl: Element | null) {
+      if (!_parentEl) {
+        console.warn('createApp.mount(): Element does not exists.');
+        return;
+      }
       if (isMounted) {
         throw new Error('The application is already mounted');
       }
