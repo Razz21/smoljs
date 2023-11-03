@@ -56,8 +56,15 @@ export abstract class Component<TProps, TState> {
     this.#patch();
     this.onUpdated?.();
   }
-  updateState(state: Partial<TState>) {
-    this.state = { ...this.state, ...state };
+  updateState(state: Partial<TState> | ((prevState: TState) => TState)) {
+    const currentState = this.state;
+    let newState: TState;
+    if (typeof state === 'function') {
+      newState = state(currentState);
+    } else {
+      newState = { ...this.state, ...state };
+    }
+    this.state = newState;
     this.#patch();
     this.onUpdated?.();
   }
