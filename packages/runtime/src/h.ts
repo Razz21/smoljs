@@ -1,5 +1,5 @@
 import { Component, ComponentInstance, InferProps } from './component';
-import { AnyFunction } from './types';
+import { AnyFunction, WritableAttributes } from './types';
 import { withoutNulls } from './utils/arrays';
 
 export const DOM_TYPES = {
@@ -31,17 +31,18 @@ export type FragmentVNode = {
 
 export type VNodeProps<T> = {
   class?: string | string[];
-  style?: Record<string, string>;
+  style?: WritableAttributes<CSSStyleDeclaration>;
   on?: Events;
 } & T;
 
 export type ElementVNodeListeners = Record<string, AnyFunction>;
 
+export type SelectHTMLAttributes<Tag extends ElementTag> = HTMLElementTagNameMap[Tag];
+
 export type ElementVNode<Tag extends ElementTag = any> = {
   tag: Tag;
   type: typeof DOM_TYPES.ELEMENT;
-  // TODO infer Props
-  props: VNodeProps<object>;
+  props: VNodeProps<WritableAttributes<Element>>;
   children?: VNode[];
   el?: Element;
   listeners?: ElementVNodeListeners;
@@ -58,22 +59,17 @@ export type ComponentVNode<TProps, TState> = {
 
 export type VNode = TextVNode | FragmentVNode | ElementVNode | ComponentVNode<any, any>;
 
-export function h<TComponent extends ComponentInstance<any, any, any>>(
-  tag: TComponent,
-  props?: VNodeProps<InferProps<TComponent>> | null,
-  children?: ChildrenVNode[] | null
-): ComponentVNode<any, any>;
-export function h<TComponent extends ElementTag>(
-  tag: TComponent,
-  // TODO infer Props
-  props?: VNodeProps<object> | null,
+export function h<T extends ElementTag>(
+  tag: T,
+  props?: VNodeProps<WritableAttributes<HTMLElementTagNameMap[T]>> | null,
   children?: ChildrenVNode[] | null
 ): ElementVNode<ElementTag>;
-export function h<TComponent = any>(
-  tag: TComponent,
-  props: VNodeProps<unknown> | null = {},
-  children: ChildrenVNode[] | null = []
-) {
+export function h<T extends ComponentInstance<any, any, any>>(
+  tag: T,
+  props?: VNodeProps<InferProps<T>> | null,
+  children?: ChildrenVNode[] | null
+): ComponentVNode<any, any>;
+export function h(tag: any, props = {}, children = []) {
   const type = typeof tag === 'string' ? DOM_TYPES.ELEMENT : DOM_TYPES.COMPONENT;
   return {
     tag,
