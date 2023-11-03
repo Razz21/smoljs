@@ -132,6 +132,7 @@ export function arraysDiffSequence(oldArray: any[], newArray: any, equalsFn = (a
   for (let index = 0; index < newArray.length; index++) {
     if (array.isRemoval(index, newArray)) {
       sequence.push(array.removeItem(index))
+      index--
       continue
     }
     if (array.isNoop(index, newArray)) {
