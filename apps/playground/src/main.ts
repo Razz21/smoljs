@@ -1,65 +1,35 @@
 import './style.css';
-import { defineComponent, h, hFragment } from '@simple-vue/runtime';
+import { defineComponent, hFragment, createApp, h } from '@simple-vue/runtime';
+import { CreateTodo, TodoList } from './components';
 
-type FlyingButtonProps = {
-  width: number;
-  height: number;
-};
+function Heading(props: { content: string }) {
+  return h('h1', null, [props.content]);
+}
 
-const BaseButton = defineComponent({
+function TodoListPlaceholder() {
+  return h('div', null, ['No todos to display, add one!']);
+}
+
+const App = defineComponent({
   state() {
     return {
-      count: 1,
+      todos: [] as string[],
     };
   },
-  render(props: { text: string }) {
-    return h('button', null, [props.text]);
-  },
-  onMounted() {
-    console.log('mounted');
+  render(props: { title: string }) {
+    const onSubmit = ({ todo }: { todo: string }) => {
+      this.updateState((prevState) => ({ ...prevState, todos: [...prevState.todos, todo] }));
+    };
+    const onDelete = (indexToRemove: number) => {
+      this.updateState((prevState) => ({ ...prevState, todos: prevState.todos.filter((_, i) => i !== indexToRemove) }));
+    };
+    return hFragment([
+      Heading({ content: props.title }),
+      CreateTodo({ onSubmit }),
+      // TodoList({ todos: this.state.todos, onDelete }),
+      this.state.todos.length > 0 ? TodoList({ todos: this.state.todos, onDelete }) : TodoListPlaceholder(),
+    ]);
   },
 });
 
-const FlyingButton = defineComponent({
-  state({ width, height }: FlyingButtonProps) {
-    return {
-      x: Math.round(Math.random() * width),
-      y: Math.round(Math.random() * height),
-    };
-  },
-  methods: {
-    numberToPx(num: number): string {
-      return num + 'px';
-    },
-  },
-  render() {
-    const { height, width } = this.props;
-    const { x, y } = this.state;
-
-    const button = h(
-      'button',
-      {
-        style: {
-          position: 'absolute',
-          left: this.numberToPx(x),
-          top: this.numberToPx(y),
-        },
-        on: {
-          click: () => {
-            this.updateState({
-              x: Math.round(Math.random() * width),
-              y: Math.round(Math.random() * height),
-            });
-          },
-        },
-      },
-      [`Move ${x} ${y}`]
-    );
-    const basebutton2 = h(BaseButton, { text: 'button text content' });
-
-    return hFragment([button, basebutton2]);
-  },
-});
-
-const element = new FlyingButton({ width: 200, height: 150 });
-element.mount(document.querySelector('#app')!);
+createApp(App, { title: 'Hello world from the Simple Vue app' }).mount(document.querySelector('#app'));
