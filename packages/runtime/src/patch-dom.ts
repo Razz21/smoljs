@@ -1,4 +1,4 @@
-import { areNodesEqual } from './nodes-equal';
+import { areNodesEqual } from './utils/nodes-equal';
 import { destroyDOM } from './destroy-dom';
 import { mountDOM } from './mount-dom';
 import { ComponentVNode, DOM_TYPES, ElementVNode, FragmentVNode, TextVNode, VNode, extractChildren } from './h';

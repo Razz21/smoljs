@@ -1,4 +1,4 @@
-import { DOM_TYPES, VNode } from './h';
+import { DOM_TYPES, VNode } from '../h';
 
 export function areNodesEqual(nodeOne: VNode, nodeTwo: VNode): boolean {
   if (nodeOne.type !== nodeTwo.type) {
