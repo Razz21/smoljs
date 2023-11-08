@@ -33,6 +33,7 @@ export type VNodeProps<T> = {
   class?: string | string[];
   style?: WritableAttributes<CSSStyleDeclaration>;
   on?: Events;
+  key?: string | number;
 } & T;
 
 export type ElementVNodeListeners = Record<string, AnyFunction>;

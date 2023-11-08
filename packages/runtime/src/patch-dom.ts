@@ -175,8 +175,9 @@ function patchChildren(
 function patchComponent(oldVdom: ComponentVNode<any, any>, newVdom: ComponentVNode<any, any>) {
   const { component } = oldVdom;
   const { props } = newVdom;
-
-  component.updateProps(props);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { key, ...componentProps } = props;
+  component.updateProps(componentProps);
 
   newVdom.component = component;
   newVdom.el = component.firstElement;

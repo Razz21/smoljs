@@ -1,7 +1,7 @@
 import { setAttributes } from './attributes';
 import { Component } from './component';
 import { addEventListeners } from './events';
-import { ComponentVNode, DOM_TYPES, ElementVNode, VNodeProps, FragmentVNode, TextVNode, VNode } from './h';
+import { ComponentVNode, DOM_TYPES, ElementVNode, FragmentVNode, TextVNode, VNode } from './h';
 
 export function mountDOM(vdom: VNode, parentEl: Element, index?: number, hostComponent?: Component<unknown, unknown>) {
   switch (vdom.type) {
@@ -41,22 +41,18 @@ function createElementNode<VDom extends ElementVNode>(
   index: number,
   hostComponent?: Component<unknown, unknown>
 ) {
-  const { tag, props, children } = vdom;
+  const { tag, children } = vdom;
   const element = document.createElement(tag);
-  addProps(element, props, vdom, hostComponent);
+  addProps(element, vdom, hostComponent);
   vdom.el = element;
   children.forEach((child) => mountDOM(child, element, null, hostComponent));
   insert(element, parentEl, index);
 }
 
-function addProps(
-  el: Element,
-  props: VNodeProps<object>,
-  vdom: ElementVNode,
-  hostComponent?: Component<unknown, unknown>
-) {
-  const { on: events, ...attrs } = props;
-
+function addProps(el: Element, vdom: ElementVNode, hostComponent?: Component<unknown, unknown>) {
+  const { on: events = {}, ...props } = vdom.props;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { key, ...attrs } = props;
   vdom.listeners = addEventListeners(events, el, hostComponent);
   setAttributes(el, attrs as any);
 }
@@ -75,6 +71,10 @@ function createFragmentNodes(
 function createComponentNode(vdom: ComponentVNode<unknown, unknown>, parentEl: Element, index: number) {
   const Component = vdom.tag;
   const props = vdom.props;
+  /*
+   * propagate children to component JSX style
+   */
+  props['children'] = vdom.children;
   const component = new Component(props);
 
   component.mount(parentEl, index);
