@@ -1,7 +1,7 @@
-import { hasOwnProperty } from '@/utils/objects';
-import { ComponentInstance, DefineComponentArgs } from './types';
-import { Component } from './component';
-import { noOp } from '@/utils/functions';
+import { hasOwnProperty, noOp } from '@/utils';
+import { Component } from '@/component';
+import type { VNode } from '@/vdom';
+import type { ComponentInstance, DefineComponentArgs } from './types';
 
 export function defineComponent<TProps, TState, TMethods>({
   render,
@@ -14,13 +14,13 @@ export function defineComponent<TProps, TState, TMethods>({
   TMethods
 > {
   class BaseComponent extends Component<TProps, TState> {
-    constructor(props?: TProps) {
-      super(props);
+    constructor(props?: TProps, children?: VNode[]) {
+      super(props, children);
       this.state = state ? state(props) : ({} as TState);
     }
 
     render() {
-      return render.call(this, this.props);
+      return render.call(this, this.props, { children: this.children });
     }
   }
   for (const methodName in lifecycleMethods) {

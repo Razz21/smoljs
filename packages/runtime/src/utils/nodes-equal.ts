@@ -1,4 +1,4 @@
-import { DOM_TYPES, VNode } from '../h';
+import { DOM_TYPES, type VNode } from '@/vdom';
 
 export function areNodesEqual(nodeOne: VNode, nodeTwo: VNode): boolean {
   if (nodeOne.type !== nodeTwo.type) {
@@ -14,7 +14,7 @@ export function areNodesEqual(nodeOne: VNode, nodeTwo: VNode): boolean {
       props: { key: keyTwo },
     } = nodeTwo as typeof nodeOne;
     // FIXME: key comparison is extremely expensive
-    return tagOne === tagTwo && keyOne === keyTwo
+    return tagOne === tagTwo && keyOne === keyTwo;
   }
 
   return true;

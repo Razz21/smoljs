@@ -1,4 +1,4 @@
-import { Nullable } from '../types'
+import type { Nullable } from '@/types'
 
 export function withoutNulls<T>(arr: Nullable<T>[]): T[] {
   return arr.filter((value) => value != null)

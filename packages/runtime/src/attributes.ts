@@ -1,4 +1,4 @@
-import { Entries } from './types';
+import type { Entries } from '@/types';
 
 type Attributes = {
   class: string | string[];

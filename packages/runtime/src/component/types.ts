@@ -1,10 +1,14 @@
-import { VNode } from '@/h';
+import { VNode } from '@/vdom';
 import { Component, ComponentLifecycleMethods } from './component';
 
 type Constructor<T> = new (...args: any) => T;
 
+export type ComponentContext = {
+  children: VNode[];
+};
+
 export type DefineComponentArgs<TProps, TState, TMethods> = {
-  render: (props: TProps) => VNode;
+  render: (props: TProps, context: ComponentContext) => VNode;
   state?: (props: TProps) => TState;
   methods?: TMethods;
 } & ComponentLifecycleMethods;

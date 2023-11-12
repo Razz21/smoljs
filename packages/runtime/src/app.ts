@@ -1,7 +1,7 @@
-import { destroyDOM } from './destroy-dom';
-import { mountDOM } from './mount-dom';
-import { VNode, h } from './h';
-import { ComponentInstance } from './component';
+import { destroyDOM } from '@/destroy-dom';
+import { mountDOM } from '@/mount-dom';
+import { type VNode, h } from '@/vdom';
+import { type ComponentInstance } from '@/component';
 
 export function createApp<TProps>(RootComponent: ComponentInstance<TProps>, props: TProps = null) {
   let parentEl: Element = null;

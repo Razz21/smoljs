@@ -1,7 +1,8 @@
+import { DOM_TYPES, type VNode } from '@/vdom';
 import { destroyDOM } from '@/destroy-dom';
-import { DOM_TYPES, VNode, extractChildren } from '@/h';
 import { mountDOM } from '@/mount-dom';
 import { patchDOM } from '@/patch-dom';
+import { extractChildren } from '@/utils';
 
 export interface ComponentLifecycleMethods {
   onMounted?: () => void;
@@ -20,9 +21,11 @@ export abstract class Component<TProps, TState> {
 
   state: Readonly<TState>;
   props: Readonly<TProps>;
+  children: VNode[];
 
-  constructor(props?: TProps) {
+  constructor(props?: TProps, children?: VNode[]) {
     this.props = props ?? ({} as TProps);
+    this.children = children ?? [];
   }
 
   get elements() {

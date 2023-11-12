@@ -1,6 +1,6 @@
-import { Component } from './component';
-import { ElementVNodeListeners } from './h';
-import { AnyFunction } from './types';
+import type { Component } from '@/component';
+import type { ElementVNodeListeners } from '@/vdom';
+import type { AnyFunction } from '@/types';
 
 export function addEventListener(
   eventName: string,

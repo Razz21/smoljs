@@ -1,5 +1,5 @@
-import { AnyFunction } from '@/types';
-import { noOp } from '@/utils/functions';
+import type { AnyFunction } from '@/types';
+import { noOp } from '@/utils';
 
 export class Dispatcher {
   #subs = new Map<string, AnyFunction[]>();

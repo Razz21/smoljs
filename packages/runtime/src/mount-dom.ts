@@ -1,7 +1,14 @@
-import { setAttributes } from './attributes';
-import { Component } from './component';
-import { addEventListeners } from './events';
-import { ComponentVNode, DOM_TYPES, ElementVNode, FragmentVNode, TextVNode, VNode } from './h';
+import { setAttributes } from '@/attributes';
+import type { Component } from '@/component';
+import { addEventListeners } from '@/events';
+import {
+  DOM_TYPES,
+  type ComponentVNode,
+  type ElementVNode,
+  type FragmentVNode,
+  type TextVNode,
+  type VNode,
+} from '@/vdom';
 
 export function mountDOM(vdom: VNode, parentEl: Element, index?: number, hostComponent?: Component<unknown, unknown>) {
   switch (vdom.type) {
@@ -74,8 +81,7 @@ function createComponentNode(vdom: ComponentVNode<unknown, unknown>, parentEl: E
   /*
    * propagate children to component JSX style
    */
-  props['children'] = vdom.children;
-  const component = new Component(props);
+  const component = new Component(props, vdom.children);
 
   component.mount(parentEl, index);
   vdom.component = component;

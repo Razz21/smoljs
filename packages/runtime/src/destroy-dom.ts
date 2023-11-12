@@ -1,5 +1,5 @@
-import { removeEventListeners } from './events';
-import { DOM_TYPES, ElementVNode, FragmentVNode, TextVNode, VNode } from './h';
+import { removeEventListeners } from '@/events';
+import { DOM_TYPES, type ElementVNode, type FragmentVNode, type TextVNode, type VNode } from '@/vdom';
 
 export function destroyDOM(vdom: VNode) {
   const { type } = vdom;

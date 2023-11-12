@@ -1,13 +1,25 @@
-import { areNodesEqual } from './utils/nodes-equal';
-import { destroyDOM } from './destroy-dom';
-import { mountDOM } from './mount-dom';
-import { ComponentVNode, DOM_TYPES, ElementVNode, FragmentVNode, TextVNode, VNode, extractChildren } from './h';
-import { objectsDiff } from './utils/objects';
-import { removeAttribute, removeStyle, setAttribute, setStyle } from './attributes';
-import { arraysDiff, ARRAY_DIFF_OP, arraysDiffSequence } from './utils/arrays';
-import { isNotBlankOrEmptyString } from './utils/strings';
-import { addEventListener } from './events';
-import { Component } from './component';
+import { destroyDOM } from '@/destroy-dom';
+import { mountDOM } from '@/mount-dom';
+import {
+  DOM_TYPES,
+  type ComponentVNode,
+  type ElementVNode,
+  type FragmentVNode,
+  type TextVNode,
+  type VNode,
+} from '@/vdom';
+import { removeAttribute, removeStyle, setAttribute, setStyle } from '@/attributes';
+import {
+  arraysDiff,
+  ARRAY_DIFF_OP,
+  arraysDiffSequence,
+  isNotBlankOrEmptyString,
+  extractChildren,
+  objectsDiff,
+  areNodesEqual,
+} from '@/utils';
+import { addEventListener } from '@/events';
+import { Component } from '@/component';
 
 export function patchDOM(
   oldVdom: VNode,
@@ -51,11 +63,7 @@ function patchText(oldVdom: TextVNode, newVdom: TextVNode) {
   }
 }
 
-function patchElement(
-  oldVdom: ElementVNode,
-  newVdom: ElementVNode,
-  hostComponent?: Component<unknown, unknown>
-) {
+function patchElement(oldVdom: ElementVNode, newVdom: ElementVNode, hostComponent?: Component<unknown, unknown>) {
   const el = oldVdom.el;
   const { class: oldClass, style: oldStyle, on: oldEvents, ...oldAttrs } = oldVdom.props;
   const { class: newClass, style: newStyle, on: newEvents, ...newAttrs } = newVdom.props;
