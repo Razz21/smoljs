@@ -15,7 +15,7 @@ export type Events = {
   [K in keyof HTMLElementEventMap]?: (event?: HTMLElementEventMap[K]) => any;
 };
 
-export type ChildrenVNode = VNode | string;
+export type ChildrenVNode = VNode | object | string | number | boolean | null | undefined | void;
 
 export type TextVNode = {
   type: typeof DOM_TYPES.TEXT;

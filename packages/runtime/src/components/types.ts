@@ -6,4 +6,4 @@ export type Attributes = {
   key?: Key;
 };
 
-export type FunctionComponent<P = {}> = (props?: Attributes & (P | null), context?: ComponentContext) => VNode;
+export type FunctionComponent<P = {}> = (props: Attributes & P, context: ComponentContext) => VNode;

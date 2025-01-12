@@ -30,16 +30,26 @@ export function h<T extends ComponentInstance<any, any, any>>(
   props?: VNodeProps<InferProps<T>> | null,
   children?: ChildrenVNode[] | null
 ): ComponentVNode<any, any>;
-export function h(tag: any, props = {}, children = []) {
+export function h(tag: any, props: any, children = []) {
+  props = props ?? {};
+
+  if (!Array.isArray(children)) {
+    children = [children];
+  }
+
+  // Flatten children's array, for nested or for-loop-generated elements
+  children = children.flat(1);
+
   if (typeof tag === 'string') {
-    return createElementVNode(tag, props, children);
+    return createElementVNode(tag, props, children) as any;
   }
   if (isClassComponent(tag)) {
-    return createComponentVNode(tag, props, children);
+    return createComponentVNode(tag, props, children) as any;
   }
   if (isFunctionComponent(tag)) {
-    return tag(props, { children });
+    return tag(props, { children }) as any;
   }
+  throw new Error(`Unknown component tag type: ${tag} (${typeof tag})`);
 }
 
 function isClassComponent(tag: unknown): tag is ComponentInstance<any, any, any> {
@@ -50,7 +60,11 @@ function isFunctionComponent(tag: unknown): tag is FunctionComponent<any> {
   return typeof tag === 'function';
 }
 
-function createElementVNode(tag: string, props: VNodeProps<any>, children: ChildrenVNode[]): ElementVNode {
+function createElementVNode(
+  tag: string,
+  props: VNodeProps<any>,
+  children: ChildrenVNode[]
+): ElementVNode {
   return {
     tag,
     type: DOM_TYPES.ELEMENT,

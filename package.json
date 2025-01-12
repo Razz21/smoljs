@@ -1,23 +1,22 @@
 {
   "name": "@simple-vue/monorepo",
   "version": "1.0.0",
-  "description": "",
+  "description": "Simple JavaScript Framework",
   "scripts": {
-    "dev": "echo \"dev mode\""
+    "build:packages": "pnpm --filter \"./packages/*\" build",
+    "dev:playground": "pnpm --filter \"./apps/playground\" dev",
+    "dev:runtime": "pnpm --filter \"./packages/runtime\" dev"
   },
   "keywords": [],
-  "author": "",
+  "author": "@Razz21",
   "license": "ISC",
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ],
   "devDependencies": {
-    "@types/node": "^18.17.0",
-    "typescript": "^5.2.2"
+    "@types/node": "^22",
+    "typescript": "^5.5.4",
+    "simple-vue": "workspace:*"
   },
   "engines": {
-    "node": "^18.17.0",
-    "npm": ">=9.0.0"
-  }
+    "node": ">=22.13.0"
+  },
+  "packageManager": "pnpm@10.0.0"
 }

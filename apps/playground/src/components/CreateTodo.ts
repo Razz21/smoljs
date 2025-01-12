@@ -1,4 +1,4 @@
-import { h } from '@simple-vue/runtime';
+import { h } from 'simple-vue';
 import { getFormData } from '../utils';
 
 type CreateTodoProps = {

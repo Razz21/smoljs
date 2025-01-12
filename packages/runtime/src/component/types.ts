@@ -8,7 +8,7 @@ export type ComponentContext = {
 };
 
 export type DefineComponentArgs<TProps, TState, TMethods> = {
-  render: (props: TProps, context: ComponentContext) => VNode;
+  render: (props: TProps, context: ComponentContext) => any;
   state?: (props: TProps) => TState;
   methods?: TMethods;
 } & ComponentLifecycleMethods;

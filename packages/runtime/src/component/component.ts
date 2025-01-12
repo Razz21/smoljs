@@ -11,7 +11,7 @@ export interface ComponentLifecycleMethods {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export interface Component<TProps, TState> extends ComponentLifecycleMethods {}
+// export interface Component<TProps, TState> extends ComponentLifecycleMethods {}
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export abstract class Component<TProps, TState> {
@@ -27,6 +27,10 @@ export abstract class Component<TProps, TState> {
     this.props = props ?? ({} as TProps);
     this.children = children ?? [];
   }
+
+  onMounted?: () => void;
+  onUnmounted?: () => void;
+  onUpdated?: () => void;
 
   get elements() {
     if (this.#vdom == null) {

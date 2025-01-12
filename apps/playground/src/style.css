@@ -99,3 +99,20 @@ input:focus {
   outline: 2px solid transparent;
   outline-offset: 2px;
 }
+
+/* Grid example */
+
+.grid {
+  --size: 15px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--size), 1fr));
+  grid-template-rows: auto;
+  background-color: #213547;
+}
+
+.grid-item {
+  width: var(--size);
+  height: var(--size);
+  border-radius: 100%;
+  background-color: #646cff;
+}

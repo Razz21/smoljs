@@ -1,0 +1,51 @@
+{
+  "name": "simple-vue",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": {
+        "default": "./dist/index.mjs",
+        "types": "./dist/index.d.mts"
+      },
+      "require": {
+        "default": "./dist/index.cjs",
+        "types": "./dist/index.d.cts"
+      },
+      "types": "./dist/index.d.ts"
+    },
+    "./jsx-runtime": {
+      "import": "./dist/jsx-runtime/index.mjs",
+      "require": "./dist/jsx-runtime/index.cjs",
+      "types": "./dist/jsx-runtime/index.d.ts"
+    },
+    "./jsx-dev-runtime": {
+      "import": "./dist/jsx-runtime/index.mjs",
+      "require": "./dist/jsx-runtime/index.cjs",
+      "types": "./dist/jsx-runtime/index.d.ts"
+    }
+  },
+  "license": "ISC",
+  "scripts": {
+    "dev": "unbuild --stub",
+    "build": "unbuild",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.9.0",
+    "@typescript-eslint/parser": "^6.9.0",
+    "eslint": "^8.50.0",
+    "unbuild": "2.0.0",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@simple-vue/runtime": "workspace:*"
+  },
+  "sideEffects": false
+}

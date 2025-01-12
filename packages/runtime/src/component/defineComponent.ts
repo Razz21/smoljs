@@ -19,7 +19,7 @@ export function defineComponent<TProps, TState, TMethods>({
       this.state = state ? state(props) : ({} as TState);
     }
 
-    render() {
+    render(): any {
       return render.call(this, this.props, { children: this.children });
     }
   }

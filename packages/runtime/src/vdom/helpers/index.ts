@@ -1,6 +1,12 @@
 import { hString } from '../constructors';
-import { ChildrenVNode, VNode } from '../types';
+import { ChildrenVNode, DOM_TYPES, VNode } from '../types';
 
 export function mapTextNodes(children: ChildrenVNode[]): VNode[] {
-  return children.map((child) => (typeof child === 'string' ? hString(child) : child));
+  return children.map((child) => (isVNode(child) ? child : hString(String(child))));
+}
+
+const vNodeTypes = Object.values(DOM_TYPES);
+
+function isVNode(child: ChildrenVNode): child is VNode {
+  return typeof child === 'object' && 'type' in child && vNodeTypes.includes(child.type);
 }

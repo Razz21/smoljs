@@ -9,9 +9,10 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^4.4.5"
+    "vite": "^4.4.5",
+    "typescript": "^5.5.4"
   },
   "dependencies": {
-    "@simple-vue/runtime": "*"
+    "simple-vue": "workspace:*"
   }
 }
