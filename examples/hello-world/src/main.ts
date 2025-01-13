@@ -1,5 +1,5 @@
 import './style.css';
-import { defineComponent, hFragment, createApp, h } from '@simple-vue/runtime';
+import { defineComponent, hFragment, createApp, h } from 'simple-vue';
 import { CreateTodo, TodoList } from './components';
 
 function Heading(props: { content: string }) {
@@ -21,15 +21,21 @@ const App = defineComponent({
       this.updateState((prevState) => ({ ...prevState, todos: [...prevState.todos, todo] }));
     };
     const onDelete = (indexToRemove: number) => {
-      this.updateState((prevState) => ({ ...prevState, todos: prevState.todos.filter((_, i) => i !== indexToRemove) }));
+      this.updateState((prevState) => ({
+        ...prevState,
+        todos: prevState.todos.filter((_, i) => i !== indexToRemove),
+      }));
     };
     return hFragment([
       Heading({ content: props.title }),
       CreateTodo({ onSubmit }),
-      // TodoList({ todos: this.state.todos, onDelete }),
-      this.state.todos.length > 0 ? TodoList({ todos: this.state.todos, onDelete }) : TodoListPlaceholder(),
+      this.state.todos.length > 0
+        ? TodoList({ todos: this.state.todos, onDelete })
+        : TodoListPlaceholder(),
     ]);
   },
 });
 
-createApp(App, { title: 'Hello world from the Simple Vue app' }).mount(document.querySelector('#app'));
+createApp(App, { title: 'Hello world from the Simple Vue app' }).mount(
+  document.querySelector('#app')
+);

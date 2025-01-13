@@ -3,15 +3,7 @@ import { destroyDOM } from '@/destroy-dom';
 import { mountDOM } from '@/mount-dom';
 import { patchDOM } from '@/patch-dom';
 import { extractChildren } from '@/utils';
-
-export interface ComponentLifecycleMethods {
-  onMounted?: () => void;
-  onUnmounted?: () => void;
-  onUpdated?: () => void;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-// export interface Component<TProps, TState> extends ComponentLifecycleMethods {}
+import equals from 'fast-deep-equal';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export abstract class Component<TProps, TState> {
@@ -28,16 +20,11 @@ export abstract class Component<TProps, TState> {
     this.children = children ?? [];
   }
 
-  onMounted?: () => void;
-  onUnmounted?: () => void;
-  onUpdated?: () => void;
-
   get elements() {
     if (this.#vdom == null) {
       return [];
     }
     if (this.#vdom.type === DOM_TYPES.FRAGMENT) {
-      // return extractChildren(this.#vdom).map((child) => child.el);
       return extractChildren(this.#vdom).flatMap((child) => {
         if (child.type === DOM_TYPES.COMPONENT) {
           return child.component.elements;
@@ -56,12 +43,18 @@ export abstract class Component<TProps, TState> {
     }
     return 0;
   }
+  abstract render(): VNode;
+  abstract onMounted(): void;
+  abstract onUnmounted(): void;
+  abstract onUpdated(): void;
 
   updateProps(props: Partial<TProps>) {
-    // TODO test for equality
-    this.props = { ...this.props, ...props };
+    const newProps = { ...this.props, ...props };
+    if (equals(this.props, newProps)) {
+      return;
+    }
+    this.props = newProps;
     this.#patch();
-    this.onUpdated?.();
   }
   updateState(state: Partial<TState> | ((prevState: TState) => TState)) {
     const currentState = this.state;
@@ -73,9 +66,7 @@ export abstract class Component<TProps, TState> {
     }
     this.state = newState;
     this.#patch();
-    this.onUpdated?.();
   }
-  abstract render(): VNode;
 
   mount(hostEl: Element, index: number = null) {
     if (this.#isMounted) {
@@ -85,7 +76,7 @@ export abstract class Component<TProps, TState> {
     mountDOM(this.#vdom, hostEl, index, this);
     this.#hostEl = hostEl;
     this.#isMounted = true;
-    this.onMounted?.();
+    this.onMounted();
   }
   unmount() {
     if (!this.#isMounted) {
@@ -95,7 +86,7 @@ export abstract class Component<TProps, TState> {
     this.#vdom = null;
     this.#hostEl = null;
     this.#isMounted = false;
-    this.onUnmounted?.();
+    this.onUnmounted();
   }
   #patch() {
     if (!this.#isMounted) {
@@ -103,5 +94,6 @@ export abstract class Component<TProps, TState> {
     }
     const vdom = this.render();
     this.#vdom = patchDOM(this.#vdom, vdom, this.#hostEl, this);
+    this.onUpdated();
   }
 }

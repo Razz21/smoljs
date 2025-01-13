@@ -1,5 +1,5 @@
 import { VNode } from '@/vdom';
-import { Component, ComponentLifecycleMethods } from './component';
+import { Component } from './component';
 
 type Constructor<T> = new (...args: any) => T;
 
@@ -11,7 +11,10 @@ export type DefineComponentArgs<TProps, TState, TMethods> = {
   render: (props: TProps, context: ComponentContext) => any;
   state?: (props: TProps) => TState;
   methods?: TMethods;
-} & ComponentLifecycleMethods;
+  onMounted?: () => void;
+  onUnmounted?: () => void;
+  onUpdated?: () => void;
+};
 
 export type ComponentInstance<TProps = unknown, TState = unknown, TMethods = unknown> = Constructor<
   Component<TProps, TState> & TMethods
