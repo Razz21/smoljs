@@ -35,10 +35,10 @@ export function setClass(el: GenericElement, className: string | string[]) {
   }
 }
 export function setStyle(el: GenericElement, name: string, value: string) {
-  el.style[name as any] = value;
+  el.style.setProperty(name, value);
 }
 export function removeStyle(el: GenericElement, name: string) {
-  el.style[name as any] = null;
+  el.style.removeProperty(name);
 }
 export function setAttribute<TAttr extends keyof HtmlAttribute>(
   el: GenericElement,
@@ -46,15 +46,16 @@ export function setAttribute<TAttr extends keyof HtmlAttribute>(
   value: HtmlAttribute[TAttr] | null
 ) {
   if (value == null) {
-    removeAttribute(el, name);
-  } else if (name.startsWith('data-')) {
-    el.setAttribute(name, value as string);
+    el.removeAttribute(name);
   } else {
-    el[name] = value;
+    el.setAttribute(name, value as string);
   }
 }
 
-export function removeAttribute<TAttr extends keyof HtmlAttribute>(el: GenericElement, name: TAttr) {
+export function removeAttribute<TAttr extends keyof HtmlAttribute>(
+  el: GenericElement,
+  name: TAttr
+) {
   el[name] = null;
   el.removeAttribute(name);
 }

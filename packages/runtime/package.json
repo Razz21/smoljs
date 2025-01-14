@@ -32,8 +32,10 @@
     "@typescript-eslint/eslint-plugin": "^6.9.0",
     "@typescript-eslint/parser": "^6.9.0",
     "eslint": "^8.50.0",
-    "unbuild": "2.0.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "unbuild": "2.0.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "fast-deep-equal": "^3.1.3"
+  }
 }

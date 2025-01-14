@@ -5,8 +5,9 @@ type MapOnEvents<T> = {
 };
 
 type HTMLAttributes<T extends keyof HTMLElementTagNameMap> = Partial<
-  MapOnEvents<Omit<HTMLElementTagNameMap[T], 'children'>>
+  MapOnEvents<Omit<HTMLElementTagNameMap[T], 'children' | 'style'>>
 > & {
+  style?: Partial<CSSStyleDeclaration> & { [key: string]: any };
   [key: string]: any;
 };
 

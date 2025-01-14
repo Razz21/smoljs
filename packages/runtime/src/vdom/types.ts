@@ -47,6 +47,7 @@ export type ElementVNode<Tag extends ElementTag = any> = {
   children?: VNode[];
   el?: Element;
   listeners?: ElementVNodeListeners;
+  ref?: string;
 };
 
 export type ComponentVNode<TProps, TState> = {

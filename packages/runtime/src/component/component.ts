@@ -15,9 +15,15 @@ export abstract class Component<TProps, TState> {
   props: Readonly<TProps>;
   children: VNode[];
 
+  #refs: Record<string, Element> = {};
+
   constructor(props?: TProps, children?: VNode[]) {
     this.props = props ?? ({} as TProps);
     this.children = children ?? [];
+  }
+
+  get $refs() {
+    return this.#refs;
   }
 
   get elements() {
@@ -74,6 +80,8 @@ export abstract class Component<TProps, TState> {
     }
     this.#vdom = this.render();
     mountDOM(this.#vdom, hostEl, index, this);
+
+    this.#setRefs();
     this.#hostEl = hostEl;
     this.#isMounted = true;
     this.onMounted();
@@ -86,6 +94,7 @@ export abstract class Component<TProps, TState> {
     this.#vdom = null;
     this.#hostEl = null;
     this.#isMounted = false;
+    this.#refs = {};
     this.onUnmounted();
   }
   #patch() {
@@ -95,5 +104,26 @@ export abstract class Component<TProps, TState> {
     const vdom = this.render();
     this.#vdom = patchDOM(this.#vdom, vdom, this.#hostEl, this);
     this.onUpdated();
+  }
+  #setRefs() {
+    if (this.#vdom.type === 'element' && this.#vdom.ref) {
+      this.#setRef(this.#vdom.ref, this.#vdom.el);
+    }
+    if ('children' in this.#vdom) {
+      this.children = this.#vdom.children;
+
+      this.children.forEach((child) => {
+        if (child.type === 'element' && child.ref) {
+          this.#setRef(child.ref, child.el);
+        }
+      });
+    }
+  }
+  #setRef(ref: string, el: Element) {
+    if (Object.prototype.hasOwnProperty.call(this.#refs, ref)) {
+      console.warn(`Ref "${ref}" already exists`);
+      return;
+    }
+    this.#refs[ref] = el;
   }
 }

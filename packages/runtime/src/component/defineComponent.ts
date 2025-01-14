@@ -13,11 +13,9 @@ export function defineComponent<TProps, TState, TMethods>({
 }: DefineComponentArgs<TProps, TState, TMethods> &
   ThisType<Component<TProps, TState> & TMethods>): ComponentInstance<TProps, TState, TMethods> {
   class BaseComponent extends Component<TProps, TState> {
-    _id: string;
     constructor(props?: TProps, children?: VNode[]) {
       super(props, children);
       this.state = state ? state(props) : ({} as TState);
-      // this._id = Math.random().toString(36).substring(7);
     }
 
     render(): any {

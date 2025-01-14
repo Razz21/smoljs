@@ -65,13 +65,15 @@ function createElementVNode(
   props: VNodeProps<any>,
   children: ChildrenVNode[]
 ): ElementVNode {
+  const { ref, ...rest } = props ?? {};
   return {
     tag,
     type: DOM_TYPES.ELEMENT,
-    props: props ?? {},
+    props: rest,
     children: mapTextNodes(withoutNulls(children)),
     el: null,
     listeners: null,
+    ref,
   };
 }
 function createComponentVNode(
