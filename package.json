@@ -16,7 +16,7 @@
     "simple-vue": "workspace:*"
   },
   "engines": {
-    "node": ">=22.13.0"
+    "node": ">=22.0.0"
   },
   "packageManager": "pnpm@10.0.0"
 }
