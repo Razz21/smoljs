@@ -19,7 +19,7 @@ import {
   areNodesEqual,
 } from '@/utils';
 import { addEventListener } from '@/events';
-import { Component } from '@/component';
+import type { Component } from '@/component';
 
 export function patchDOM(
   oldVdom: VNode,

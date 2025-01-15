@@ -1,4 +1,4 @@
-import { Todo } from '../types';
+import type { Todo } from '../types';
 import { TodoElement } from './TodoElement';
 
 export function TodoList(props: {

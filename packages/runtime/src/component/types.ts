@@ -1,5 +1,5 @@
-import { VNode } from '@/vdom';
-import { Component } from './component';
+import type { VNode } from '@/vdom';
+import type { Component } from './component';
 
 type Constructor<T> = new (...args: any) => T;
 

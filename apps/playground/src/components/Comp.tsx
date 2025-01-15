@@ -1,12 +1,11 @@
-import { defineComponent } from 'simple-vue';
+import { defineComponent } from "simple-vue";
 
 const Component = defineComponent({
   render({ name, children }: { name?: string; children: JSX.Element }) {
     return (
-      <span data-test="hello" className="my-class" onClick={() => console.log('clicked')}>
+      <span data-test="hello" className="my-class" onClick={() => console.log("clicked")}>
         <p>name: {name}</p>
         <p>children: {children}</p>
-        
       </span>
     );
   },

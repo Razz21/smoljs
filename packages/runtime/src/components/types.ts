@@ -1,5 +1,5 @@
-import { ComponentContext } from '@/component';
-import { VNode } from '@/vdom';
+import type { ComponentContext } from '@/component';
+import type { VNode } from '@/vdom';
 
 export type Key = any;
 export type Attributes = {

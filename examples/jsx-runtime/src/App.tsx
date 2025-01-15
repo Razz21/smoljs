@@ -1,6 +1,6 @@
-import { defineComponent, Fragment } from 'simple-vue';
+import { Fragment, defineComponent } from 'simple-vue';
 import { CreateTodo, TodoList } from './components';
-import { Todo } from './types';
+import type { Todo } from './types';
 
 function Heading(props: { children: JSX.Element }): JSX.Element {
   return <h1>{props.children}</h1>;
