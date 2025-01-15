@@ -38,6 +38,8 @@ function removeElement(vdom: ElementVNode) {
   children.forEach(destroyDOM);
   if (listeners) {
     removeEventListeners(listeners, el);
+    // FIXME: delete operator has performance negative effects for the V8 hidden classes pattern
+    // https://v8.dev/docs/hidden-classes
     delete vdom.listeners;
   }
 }

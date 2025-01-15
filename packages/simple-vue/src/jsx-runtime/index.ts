@@ -1,4 +1,4 @@
-import { h, Fragment } from '@simple-vue/runtime';
+import { Fragment, h } from '@simple-vue/runtime';
 
 function compileJSXEvents(props: Record<string, any>) {
   const events: Record<string, any> = {};
@@ -31,7 +31,8 @@ function jsx(type: any, props: Record<string, any>, key: any) {
     return h(type, props);
   }
   const { children = [] } = props ?? {};
-
+  // FIXME: delete operator has performance negative effects for the V8 hidden classes pattern
+  // https://v8.dev/docs/hidden-classes
   delete props.children;
 
   return h(type, transformProps(props), children);
