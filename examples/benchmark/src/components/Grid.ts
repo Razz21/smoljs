@@ -1,6 +1,6 @@
 import { defineComponent, h, hFragment } from 'simple-vue';
 
-const GridItem = defineComponent({
+const _GridItem = defineComponent({
   render({ ...rest }: {}) {
     return h('div', {
       ...rest,
@@ -62,7 +62,7 @@ export const Grid = defineComponent({
               name: 'grid-item',
               value: String(item.value),
               on: { click: onChange },
-              checked: state.itemsToRender === item.value,
+              checked: state.itemsToRender === item.value || undefined,
             }),
             [`${item.label} (${item.value})`],
           ]);
