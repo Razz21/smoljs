@@ -12,6 +12,6 @@
     "vite": "^4.4.5"
   },
   "dependencies": {
-    "simple-vue": "file:../../packages/simple-vue"
+    "simple-vue": "workspace:*"
   }
 }

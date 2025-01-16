@@ -25,7 +25,9 @@ declare global {
     type ElementType =
       | keyof IntrinsicElements
       | ((props: any) => Element)
-      | (new (props: any) => ElementClass);
+      | (new (
+          props: any
+        ) => ElementClass);
     interface IntrinsicAttributes extends Attributes {}
     interface IntrinsicElements extends IntrinsicElementAttributes {
       [elemName: string]: any;

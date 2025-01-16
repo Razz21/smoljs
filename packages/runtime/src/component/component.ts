@@ -1,11 +1,10 @@
-import { DOM_TYPES, type VNode } from '@/vdom';
 import { destroyDOM } from '@/destroy-dom';
 import { mountDOM } from '@/mount-dom';
 import { patchDOM } from '@/patch-dom';
 import { extractChildren } from '@/utils';
+import { DOM_TYPES, type VNode } from '@/vdom';
 import equals from 'fast-deep-equal';
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export abstract class Component<TProps, TState> {
   #isMounted = false;
   #vdom: VNode = null;

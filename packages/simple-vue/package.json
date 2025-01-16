@@ -2,46 +2,30 @@
   "name": "simple-vue",
   "version": "0.0.1",
   "type": "module",
-  "main": "dist/index.cjs",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "main": "./dist/index.min.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": {
-        "default": "./dist/index.mjs",
-        "types": "./dist/index.d.mts"
-      },
-      "require": {
-        "default": "./dist/index.cjs",
-        "types": "./dist/index.d.cts"
-      },
-      "types": "./dist/index.d.ts"
+      "import": "./dist/index.js",
+      "require": "./dist/index.min.js"
     },
     "./jsx-runtime": {
-      "import": "./dist/jsx-runtime/index.mjs",
-      "require": "./dist/jsx-runtime/index.cjs",
-      "types": "./dist/jsx-runtime/index.d.ts"
-    },
-    "./jsx-dev-runtime": {
-      "import": "./dist/jsx-runtime/index.mjs",
-      "require": "./dist/jsx-runtime/index.cjs",
-      "types": "./dist/jsx-runtime/index.d.ts"
+      "import": "./dist/jsx-runtime.js",
+      "require": "./dist/jsx-runtime.min.js",
+      "types": "./dist/jsx-runtime.d.ts"
     }
   },
-  "license": "ISC",
+  "files": ["dist"],
   "scripts": {
-    "dev": "unbuild --stub",
-    "build": "unbuild",
-    "prepare": "npm run build"
+    "dev": "vite build --watch",
+    "build": "vite build"
   },
   "devDependencies": {
-    "unbuild": "2.0.0"
-  },
-  "dependencies": {
+    "vite": "^4.4.5",
+    "vite-plugin-dts": "^4.5.0",
     "@simple-vue/runtime": "workspace:*"
   },
-  "sideEffects": false
+  "dependencies": {
+  }
 }
