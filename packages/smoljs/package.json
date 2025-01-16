@@ -1,5 +1,5 @@
 {
-  "name": "simple-vue",
+  "name": "smoljs",
   "version": "0.0.1",
   "type": "module",
   "main": "./dist/index.min.js",
@@ -24,7 +24,7 @@
   "devDependencies": {
     "vite": "^4.4.5",
     "vite-plugin-dts": "^4.5.0",
-    "@simple-vue/runtime": "workspace:*"
+    "@smoljs/runtime": "workspace:*"
   },
   "dependencies": {
   }

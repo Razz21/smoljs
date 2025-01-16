@@ -1,4 +1,4 @@
-import { Fragment, h } from '@simple-vue/runtime';
+import { Fragment, h } from '@smoljs/runtime';
 
 function compileJSXEvents(props: Record<string, any>) {
   const events: Record<string, any> = {};

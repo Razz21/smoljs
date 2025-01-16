@@ -1,9 +1,9 @@
 <h1 align="center">
-    Simple-Vue
+    smoljs
 </h1>
 <br/>
 
-# What is Simple-Vue?
+# What is smoljs?
 
 TODO
 

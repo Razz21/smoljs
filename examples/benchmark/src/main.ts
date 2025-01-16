@@ -1,5 +1,5 @@
 import './style.css';
-import { createApp, defineComponent, h, hFragment } from 'simple-vue';
+import { createApp, defineComponent, h, hFragment } from 'smoljs';
 import { Grid } from './components';
 
 const _disclaimer = `⚠️ Warning: Use This Benchmark at Your Own Risk! ⚠️
@@ -16,10 +16,10 @@ const App = defineComponent({
   render() {
     return hFragment([
       h('main', null, [
-        h('h1', null, ['Benchmark Simple-Vue']),
+        h('h1', null, ['Benchmark Smoljs']),
         h('p', null, [
           'This benchmark is designed to test the performance of ',
-          h('a', { href: 'http://github.com/Razz21/simple-vue', target: '_blank' }, ['Simple-Vue']),
+          h('a', { href: 'http://github.com/Razz21/smoljs', target: '_blank' }, ['Smoljs']),
           ' by rendering a number of elements. ',
         ]),
         h(Grid),

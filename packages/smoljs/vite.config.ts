@@ -6,16 +6,16 @@ export default defineConfig({
   build: {
     lib: {
       entry: [resolve(__dirname, 'src/index.ts'), resolve(__dirname, 'src/jsx-runtime.ts')],
-      name: 'SimpleVue',
+      name: 'Smoljs',
       fileName: (format, entryName) => `${entryName}.${format === 'es' ? 'js' : 'min.js'}`,
     },
 
     rollupOptions: {
       preserveEntrySignatures: "allow-extension",
-      external: ['@simple-vue/runtime'],
+      external: ['@smoljs/runtime'],
       output: {
         globals: {
-          '@simple-vue/runtime': 'SimpleVueRuntime',
+          '@smoljs/runtime': 'SmoljsRuntime',
         },
       },
     },

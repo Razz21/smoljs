@@ -1,5 +1,5 @@
 import './style.css';
-import { defineComponent, hFragment, createApp, h } from 'simple-vue';
+import { createApp, defineComponent, h, hFragment } from 'smoljs';
 import { CreateTodo, TodoList } from './components';
 
 function Heading(props: { content: string }) {
@@ -36,6 +36,6 @@ const App = defineComponent({
   },
 });
 
-createApp(App, { title: 'Hello world from the Simple Vue app' }).mount(
+createApp(App, { title: 'Hello world from the Smoljs app' }).mount(
   document.querySelector('#app')
 );

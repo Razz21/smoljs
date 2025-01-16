@@ -1,4 +1,4 @@
-import { h } from 'simple-vue';
+import { h } from 'smoljs';
 import { getFormData } from '../utils';
 
 type CreateTodoProps = {
