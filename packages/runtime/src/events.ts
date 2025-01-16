@@ -5,31 +5,33 @@ import type { ElementVNodeListeners } from '@/vdom';
 export function addEventListener(
   eventName: string,
   handler: AnyFunction,
-  el: Element,
+  element: Element,
   hostComponent: Component<unknown, unknown> = null
 ) {
-  function boundHandler(...args: Parameters<AnyFunction>) {
+  const wrappedHandler: EventListener = (...args) => {
     hostComponent ? handler.apply(hostComponent, args) : handler(...args);
-  }
-  el.addEventListener(eventName, boundHandler);
-  return boundHandler;
+  };
+  element.addEventListener(eventName, wrappedHandler);
+  return wrappedHandler;
 }
 
 export function addEventListeners(
-  listeners: ElementVNodeListeners = {},
-  el: Element,
+  eventListeners: ElementVNodeListeners = {},
+  element: Element,
   hostComponent: Component<unknown, unknown> = null
 ) {
-  const addedListeners: ElementVNodeListeners = {};
-  Object.entries(listeners).forEach(([eventName, handler]) => {
-    const listener = addEventListener(eventName, handler, el, hostComponent);
-    addedListeners[eventName] = listener;
+  const activeListeners: ElementVNodeListeners = {};
+
+  Object.entries(eventListeners).forEach(([eventName, handler]) => {
+    const listener = addEventListener(eventName, handler, element, hostComponent);
+    activeListeners[eventName] = listener;
   });
-  return addedListeners;
+
+  return activeListeners;
 }
 
-export function removeEventListeners(listeners: ElementVNodeListeners, el: ChildNode) {
-  Object.entries(listeners).forEach(([eventName, handler]) => {
-    el.removeEventListener(eventName, handler);
+export function removeEventListeners(eventListeners: ElementVNodeListeners, element: Element) {
+  Object.entries(eventListeners).forEach(([eventName, handler]) => {
+    element.removeEventListener(eventName, handler);
   });
 }

@@ -5,57 +5,68 @@ type HtmlAttributes = {
   style: Record<string, string>;
 } & HtmlAttribute;
 
-export type GenericElement = Element & Record<string, any>;
+export type GenericHtmlElement = Element & Record<string, any>;
 
-export type HtmlAttribute<T extends GenericElement = GenericElement> = T;
+export type HtmlAttribute<T extends GenericHtmlElement = GenericHtmlElement> = T;
 
-export function setAttributes(el: GenericElement, attrs: HtmlAttributes) {
-  const { class: className, style, ...otherAttrs } = attrs;
+export function applyAttributes(element: GenericHtmlElement, attributes: HtmlAttributes): void {
+  const { class: className, style, ...otherAttributes } = attributes;
 
   if (className) {
-    setClass(el, className);
+    applyClass(element, className);
   }
+
   if (style) {
-    Object.entries(style).forEach(([prop, value]) => {
-      setStyle(el, prop, value);
+    Object.entries(style).forEach(([property, value]) => {
+      applyStyle(element, property, value);
     });
   }
-  for (const [name, value] of Object.entries(otherAttrs) as Entries<HtmlAttribute>) {
-    setAttribute(el, name, value);
+
+  for (const [attributeName, attributeValue] of Object.entries(
+    otherAttributes
+  ) as Entries<HtmlAttribute>) {
+    applyAttribute(element, attributeName, attributeValue);
   }
 }
 
-export function setClass(el: GenericElement, className: string | string[]) {
-  el.className = '';
+export function applyClass(element: GenericHtmlElement, className: string | string[]): void {
+  element.className = '';
+
   if (typeof className === 'string') {
-    el.className = className;
+    element.className = className;
+  } else if (Array.isArray(className)) {
+    element.classList.add(...className);
   }
-  if (Array.isArray(className)) {
-    el.classList.add(...className);
-  }
 }
-export function setStyle(el: GenericElement, name: string, value: string) {
-  el.style.setProperty(name, value);
+
+export function applyStyle(
+  element: GenericHtmlElement,
+  propertyName: string,
+  propertyValue: string
+): void {
+  element.style.setProperty(propertyName, propertyValue);
 }
-export function removeStyle(el: GenericElement, name: string) {
-  el.style.removeProperty(name);
+
+export function removeStyle(element: GenericHtmlElement, propertyName: string): void {
+  element.style.removeProperty(propertyName);
 }
-export function setAttribute<TAttr extends keyof HtmlAttribute>(
-  el: GenericElement,
-  name: TAttr,
-  value: HtmlAttribute[TAttr] | null
-) {
-  if (value == null) {
-    el.removeAttribute(name);
+
+export function applyAttribute<TAttr extends keyof HtmlAttribute>(
+  element: GenericHtmlElement,
+  attributeName: TAttr,
+  attributeValue: HtmlAttribute[TAttr] | null
+): void {
+  if (attributeValue == null) {
+    element.removeAttribute(attributeName);
   } else {
-    el.setAttribute(name, value as string);
+    element.setAttribute(attributeName, attributeValue as string);
   }
 }
 
 export function removeAttribute<TAttr extends keyof HtmlAttribute>(
-  el: GenericElement,
-  name: TAttr
-) {
-  el[name] = null;
-  el.removeAttribute(name);
+  element: GenericHtmlElement,
+  attributeName: TAttr
+): void {
+  element[attributeName] = null;
+  element.removeAttribute(attributeName);
 }

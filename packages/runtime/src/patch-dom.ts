@@ -1,15 +1,20 @@
-import { removeAttribute, removeStyle, setAttribute, setStyle } from '@/attributes';
-import type { Component } from '@/component';
-import { destroyDOM } from '@/destroy-dom';
-import { addEventListener } from '@/events';
-import { mountDOM } from '@/mount-dom';
 import {
-  ARRAY_DIFF_OP,
-  areNodesEqual,
-  arraysDiff,
-  arraysDiffSequence,
-  extractChildren,
-  isNotBlankOrEmptyString,
+  applyAttribute,
+  applyStyle,
+  removeAttribute,
+  removeStyle,
+} from '@/attributes';
+import type { Component } from '@/component';
+import { destroyVNode } from '@/destroy-dom';
+import { addEventListener } from '@/events';
+import { mountVNode } from '@/mount-dom';
+import {
+  ArrayDiffOperationType,
+  areVNodeNodesEqual,
+  calculateArrayDifference,
+  extractChildNodes,
+  generateArrayTransformationSequence,
+  isNonBlankString,
   objectsDiff,
 } from '@/utils';
 import { type VNode, isClassComponentVNode, isElementVNode, isTextVNode } from '@/vdom';
@@ -20,43 +25,40 @@ export function patchDOM(
   parentEl: Element,
   hostComponent?: Component<unknown, unknown>
 ) {
-  if (!areNodesEqual(oldVdom, newVdom)) {
+  if (!areVNodeNodesEqual(oldVdom, newVdom)) {
     const index = Array.from(parentEl.childNodes).indexOf(oldVdom.el);
-    destroyDOM(oldVdom);
-    mountDOM(newVdom, parentEl, index, hostComponent);
+    destroyVNode(oldVdom);
+    mountVNode(newVdom, parentEl, index, hostComponent);
     return newVdom;
   }
+
   newVdom.el = oldVdom.el;
 
   if (isTextVNode(newVdom)) {
     patchText(oldVdom, newVdom);
     return newVdom;
   }
+
   if (isElementVNode(newVdom)) {
     patchElement(oldVdom, newVdom, hostComponent);
-  }
-  if (isClassComponentVNode(newVdom)) {
+  } else if (isClassComponentVNode(newVdom)) {
     patchComponent(oldVdom, newVdom);
-    // TODO test, if children should be patched
     return newVdom;
   }
 
   patchChildren(oldVdom, newVdom, hostComponent);
-
   return newVdom;
 }
 
 function patchText(oldVdom: VNode, newVdom: VNode) {
-  const el = oldVdom.el;
-  const {
-    children: [oldText],
-  } = oldVdom;
-  const {
-    children: [newText],
-  } = newVdom;
+  const { el } = oldVdom;
+  const [oldText] = oldVdom.children;
+  const [newText] = newVdom.children;
+
   if (typeof oldText !== 'string' || typeof newText !== 'string') {
-    throw new Error('Text node children should be strings');
+    throw new Error('Text node children must be strings');
   }
+
   if (oldText !== newText) {
     el.nodeValue = newText;
   }
@@ -66,36 +68,27 @@ function patchElement(oldVdom: VNode, newVdom: VNode, hostComponent?: Component<
   const el = oldVdom.el as Element;
   const { class: oldClass, style: oldStyle, on: oldEvents, ...oldAttrs } = oldVdom.props;
   const { class: newClass, style: newStyle, on: newEvents, ...newAttrs } = newVdom.props;
-  const { listeners: oldListeners } = oldVdom;
 
   patchAttrs(el, oldAttrs, newAttrs);
   patchClasses(el, oldClass, newClass);
   patchStyles(el, oldStyle, newStyle);
-  newVdom.listeners = patchEvents(el, oldListeners, oldEvents, newEvents, hostComponent);
+  newVdom.listeners = patchEvents(el, oldVdom.listeners, oldEvents, newEvents, hostComponent);
 }
 
 function patchAttrs(el: Element, oldAttrs: Record<string, any>, newAttrs: Record<string, any>) {
   const { added, removed, updated } = objectsDiff(oldAttrs, newAttrs);
-  for (const attr of removed) {
-    removeAttribute(el, attr);
-  }
 
-  for (const attr of added.concat(updated)) {
-    setAttribute(el, attr, newAttrs[attr]);
-  }
+  removed.forEach(attr => removeAttribute(el, attr));
+  [...added, ...updated].forEach(attr => applyAttribute(el, attr, newAttrs[attr]));
 }
 
 function patchClasses(el: Element, oldClass: string | string[], newClass: string | string[]) {
   const oldClasses = toClassList(oldClass);
   const newClasses = toClassList(newClass);
+  const { added, removed } = calculateArrayDifference(oldClasses, newClasses);
 
-  const { added, removed } = arraysDiff(oldClasses, newClasses);
-  if (removed.length > 0) {
-    el.classList.remove(...removed);
-  }
-  if (added.length > 0) {
-    el.classList.add(...removed);
-  }
+  if (removed.length) el.classList.remove(...removed);
+  if (added.length) el.classList.add(...added);
 }
 
 function patchStyles(
@@ -104,12 +97,9 @@ function patchStyles(
   newStyle: Record<string, string>
 ) {
   const { added, removed, updated } = objectsDiff(oldStyle, newStyle);
-  for (const style of removed) {
-    removeStyle(el, style);
-  }
-  for (const style of added.concat(updated)) {
-    setStyle(el, style, newStyle[style]);
-  }
+
+  removed.forEach(style => removeStyle(el, style));
+  [...added, ...updated].forEach(style => applyStyle(el, style, newStyle[style]));
 }
 
 function patchEvents(
@@ -120,21 +110,28 @@ function patchEvents(
   hostComponent?: Component<unknown, unknown>
 ) {
   const { added, removed, updated } = objectsDiff(oldEvents, newEvents);
-  for (const eventName of removed.concat(updated)) {
-    el.removeEventListener(eventName, oldListeners[eventName]);
-  }
-  const addedListeners: Record<string, any> = {};
-  for (const eventName of added.concat(updated)) {
-    const listener = addEventListener(eventName, newEvents[eventName], el, hostComponent);
-    addedListeners[eventName] = listener;
-  }
-  return addedListeners;
+
+  [...removed, ...updated].forEach(eventName =>
+    el.removeEventListener(eventName, oldListeners[eventName])
+  );
+
+  const newListeners: Record<string, any> = {};
+  [...added, ...updated].forEach(eventName => {
+    newListeners[eventName] = addEventListener(
+      eventName,
+      newEvents[eventName],
+      el,
+      hostComponent
+    );
+  });
+
+  return newListeners;
 }
 
 function toClassList(classes: string | string[] = '') {
   return Array.isArray(classes)
-    ? classes.filter(isNotBlankOrEmptyString)
-    : classes.split(/(\s+)/).filter(isNotBlankOrEmptyString);
+    ? classes.filter(isNonBlankString)
+    : classes.split(/\s+/).filter(isNonBlankString);
 }
 
 function patchChildren(
@@ -142,54 +139,42 @@ function patchChildren(
   newVdom: VNode,
   hostComponent?: Component<unknown, unknown>
 ) {
-  const oldChildren = extractChildren(oldVdom);
-  const newChildren = extractChildren(newVdom);
+  const oldChildren = extractChildNodes(oldVdom);
+  const newChildren = extractChildNodes(newVdom);
   const parentEl = oldVdom.el as Element;
+  const diffSeq = generateArrayTransformationSequence(oldChildren, newChildren, areVNodeNodesEqual);
 
-  const diffSeq = arraysDiffSequence(oldChildren, newChildren, areNodesEqual);
+  diffSeq.forEach(({ op, index, originalIndex, item }) => {
+    const offset = hostComponent?.offset ?? 0;
 
-  for (const operation of diffSeq) {
-    const { index, item } = operation;
-    const offset = hostComponent.offset ?? 0;
-
-    switch (operation.op) {
-      case ARRAY_DIFF_OP.ADD: {
-        mountDOM(item, parentEl, index + offset, hostComponent);
+    switch (op) {
+      case ArrayDiffOperationType.ADD:
+        mountVNode(item, parentEl, index + offset, hostComponent);
         break;
-      }
 
-      case ARRAY_DIFF_OP.REMOVE: {
-        destroyDOM(item);
+      case ArrayDiffOperationType.REMOVE:
+        destroyVNode(item);
         break;
-      }
 
-      case ARRAY_DIFF_OP.MOVE: {
-        const oldChild = oldChildren[operation.originalIndex];
-        const newChild = newChildren[index];
-        const el = oldChild.el;
+      case ArrayDiffOperationType.MOVE: {
         const elAtTargetIndex = parentEl.childNodes[index + offset];
-
-        parentEl.insertBefore(el, elAtTargetIndex);
-        patchDOM(oldChild, newChild, parentEl, hostComponent);
-
+        parentEl.insertBefore(oldChildren[originalIndex].el, elAtTargetIndex);
+        patchDOM(oldChildren[originalIndex], newChildren[index], parentEl, hostComponent);
         break;
       }
 
-      case ARRAY_DIFF_OP.NOOP: {
-        patchDOM(oldChildren[operation.originalIndex], newChildren[index], parentEl, hostComponent);
+      case ArrayDiffOperationType.NOOP:
+        patchDOM(oldChildren[originalIndex], newChildren[index], parentEl, hostComponent);
         break;
-      }
     }
-  }
+  });
 }
 
 function patchComponent(oldVdom: VNode, newVdom: VNode) {
   const { component } = oldVdom;
-  const { props } = newVdom;
+  const { key, ...props } = newVdom.props;
 
-  const { key, ...componentProps } = props;
-  component.updateProps(componentProps);
-
+  component.updateProps(props);
   newVdom.component = component;
   newVdom.el = component.firstElement;
 }

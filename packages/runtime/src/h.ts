@@ -38,7 +38,10 @@ export function h(type: any, props?: any, children?: VNodeChildren[] | null) {
   if (isFunctionComponent(type)) {
     return type(props, { children }) as any;
   }
-  throw new Error(`Unknown component tag type: ${type} (${typeof type})`);
+
+  throw new Error(
+    `Invalid component type passed to "h": expected a string, class component, or function component but received ${typeof type} (${type}).`
+  );
 }
 
 export function hFragment(vNodes: VNodeChildren[]): VNode {

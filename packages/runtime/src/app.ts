@@ -1,7 +1,7 @@
 import type { ComponentInstance } from '@/component';
-import { destroyDOM } from '@/destroy-dom';
+import { destroyVNode } from '@/destroy-dom';
 import { h } from '@/h';
-import { mountDOM } from '@/mount-dom';
+import { mountVNode } from '@/mount-dom';
 import type { VNode } from '@/vdom';
 
 export function createApp<TProps>(RootComponent: ComponentInstance<TProps>, props: TProps = null) {
@@ -27,7 +27,7 @@ export function createApp<TProps>(RootComponent: ComponentInstance<TProps>, prop
 
       parentEl = _parentEl;
       vdom = h(RootComponent, props);
-      mountDOM(vdom, parentEl);
+      mountVNode(vdom, parentEl);
 
       isMounted = true;
     },
@@ -36,7 +36,7 @@ export function createApp<TProps>(RootComponent: ComponentInstance<TProps>, prop
       if (!isMounted) {
         throw new Error('The application is not mounted');
       }
-      destroyDOM(vdom);
+      destroyVNode(vdom);
       reset();
     },
   };

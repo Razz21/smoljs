@@ -1,7 +1,7 @@
 import { Component, type ComponentInstance } from '@/component';
 import type { FunctionComponent } from '@/components/types';
 import type { WritableAttributes } from '@/types';
-import { isPrototypeOf, withoutNulls } from '@/utils';
+import { filterNonNullable, isPrototypeOf } from '@/utils';
 import { normalizeChildren } from './helpers';
 import type { Attributes, ElementVNodeListeners, Events } from './types';
 
@@ -37,7 +37,7 @@ export function createVNode(
   shouldNormalize = true
 ): VNode {
   const { ref: rawRef, ...others } = props ?? {};
-  let _children = withoutNulls(children || []);
+  let _children = filterNonNullable(children || []);
 
   if (shouldNormalize) {
     _children = normalizeChildren(_children);
