@@ -12,7 +12,7 @@ import {
   isNotBlankOrEmptyString,
   objectsDiff,
 } from '@/utils';
-import { TextVNode, type VNode, isClassComponent } from '@/vdom';
+import { type VNode, isClassComponentVNode, isElementVNode, isTextVNode } from '@/vdom';
 
 export function patchDOM(
   oldVdom: VNode,
@@ -28,14 +28,14 @@ export function patchDOM(
   }
   newVdom.el = oldVdom.el;
 
-  if (newVdom.type === TextVNode) {
+  if (isTextVNode(newVdom)) {
     patchText(oldVdom, newVdom);
     return newVdom;
   }
-  if (typeof newVdom.type === 'string') {
-    patchElement(oldVdom as typeof newVdom, newVdom, hostComponent);
+  if (isElementVNode(newVdom)) {
+    patchElement(oldVdom, newVdom, hostComponent);
   }
-  if (isClassComponent(newVdom.type)) {
+  if (isClassComponentVNode(newVdom)) {
     patchComponent(oldVdom, newVdom);
     // TODO test, if children should be patched
     return newVdom;
@@ -54,8 +54,11 @@ function patchText(oldVdom: VNode, newVdom: VNode) {
   const {
     children: [newText],
   } = newVdom;
+  if (typeof oldText !== 'string' || typeof newText !== 'string') {
+    throw new Error('Text node children should be strings');
+  }
   if (oldText !== newText) {
-    el.nodeValue = newText as any as string;
+    el.nodeValue = newText;
   }
 }
 

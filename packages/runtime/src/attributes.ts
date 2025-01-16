@@ -1,6 +1,6 @@
 import type { Entries } from '@/types';
 
-type Attributes = {
+type HtmlAttributes = {
   class: string | string[];
   style: Record<string, string>;
 } & HtmlAttribute;
@@ -9,7 +9,7 @@ export type GenericElement = Element & Record<string, any>;
 
 export type HtmlAttribute<T extends GenericElement = GenericElement> = T;
 
-export function setAttributes(el: GenericElement, attrs: Attributes) {
+export function setAttributes(el: GenericElement, attrs: HtmlAttributes) {
   const { class: className, style, ...otherAttrs } = attrs;
 
   if (className) {

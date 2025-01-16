@@ -17,7 +17,7 @@ function removeElement(vdom: VNode) {
   children.forEach(destroyDOM);
   if (listeners) {
     removeEventListeners(listeners, el);
-    // FIXME: delete operator has performance negative effects for the V8 hidden classes pattern
+    // TODO: delete operator may have performance negative effects for the V8 hidden classes pattern
     // https://v8.dev/docs/hidden-classes
     delete vdom.listeners;
   }

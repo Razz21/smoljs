@@ -2,10 +2,7 @@ import { setAttributes } from '@/attributes';
 import type { Component, ComponentInstance } from '@/component';
 import { addEventListeners } from '@/events';
 import {
-  FragmentVNode,
-  TextVNode,
   type VNode,
-  isClassComponent,
   isClassComponentVNode,
   isElementVNode,
   isFragmentVNode,
@@ -61,10 +58,9 @@ function createElementNode<VDom extends VNode>(
 
 function addProps(el: Element, vdom: VNode, hostComponent?: Component<unknown, unknown>) {
   const { on: events = {}, ...props } = vdom.props;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { key, ...attrs } = props;
   vdom.listeners = addEventListeners(events, el, hostComponent);
-  setAttributes(el, attrs as any);
+  setAttributes(el, attrs);
 }
 
 function createFragmentNodes(
