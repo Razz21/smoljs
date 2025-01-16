@@ -1,4 +1,4 @@
-import type { Attributes, ChildrenVNode, FragmentVNode, VNode } from '@simple-vue/runtime';
+import type { Attributes, ChildrenVNode, FragmentVNode, VNode } from '@smoljs/runtime';
 
 type MapOnEvents<T> = {
   [K in keyof T as K extends `on${infer Event}` ? `on${Capitalize<Event>}` : K]: T[K];
@@ -15,7 +15,7 @@ export type IntrinsicElementAttributes = {
   [K in keyof HTMLElementTagNameMap]: HTMLAttributes<K>;
 };
 
-declare module '@simple-vue/runtime' {
+declare module '@smoljs/runtime' {
   function Fragment(_props: Attributes & { children?: JSX.Element | JSX.Element[] }): FragmentVNode;
 }
 

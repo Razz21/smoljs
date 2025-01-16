@@ -20,7 +20,7 @@ export default defineConfig({
             loader: 'tsx',
             jsxFactory: 'jsx',
             jsxFragment: 'Fragment',
-            jsxImportSource: 'simple-vue',
+            jsxImportSource: 'smoljs',
             jsxSideEffects: false,
             jsx: 'automatic',
             jsxDev: false,

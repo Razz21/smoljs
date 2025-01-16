@@ -1,4 +1,4 @@
-import { h } from 'simple-vue';
+import { h } from 'smoljs';
 
 function DeleteButton(props: { onClick: () => void }) {
   return h('button', { on: { click: props.onClick }, class: ['delete-btn'] }, ['✕']);

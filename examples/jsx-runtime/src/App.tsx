@@ -1,4 +1,4 @@
-import { Fragment, defineComponent } from 'simple-vue';
+import { Fragment, defineComponent } from 'smoljs';
 import { CreateTodo, TodoList } from './components';
 import type { Todo } from './types';
 

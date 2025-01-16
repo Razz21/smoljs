@@ -1,4 +1,4 @@
-import { h } from 'simple-vue';
+import { h } from 'smoljs';
 import { TodoElement } from './TodoElement';
 
 export function TodoList(props: { todos: string[]; onDelete: (index: number) => void }) {

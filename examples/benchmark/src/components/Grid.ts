@@ -1,4 +1,4 @@
-import { defineComponent, h, hFragment } from 'simple-vue';
+import { defineComponent, h, hFragment } from 'smoljs';
 
 const _GridItem = defineComponent({
   render({ ...rest }: {}) {

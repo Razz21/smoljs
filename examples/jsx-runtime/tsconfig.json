@@ -20,9 +20,9 @@
     "noFallthroughCasesInSwitch": true,
     "jsx": "preserve",
     "jsxFactory": "jsx",
-    "jsxImportSource": "simple-vue",
+    "jsxImportSource": "smoljs",
     "jsxFragmentFactory": "Fragment",
-    "typeRoots": ["simple-vue/jsx-runtime"]
+    "typeRoots": ["smoljs/jsx-runtime"]
   },
   "include": ["src"]
 }

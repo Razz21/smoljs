@@ -1,7 +1,7 @@
 {
-  "name": "@simple-vue/monorepo",
+  "name": "@smoljs/monorepo",
   "version": "0.0.1",
-  "description": "Simple JavaScript Framework",
+  "description": "Yet Another Smol JavaScript Framework",
   "author": "@Razz21",
   "license": "MIT",
   "scripts": {
