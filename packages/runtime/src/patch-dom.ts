@@ -1,25 +1,18 @@
+import { removeAttribute, removeStyle, setAttribute, setStyle } from '@/attributes';
+import type { Component } from '@/component';
 import { destroyDOM } from '@/destroy-dom';
+import { addEventListener } from '@/events';
 import { mountDOM } from '@/mount-dom';
 import {
-  DOM_TYPES,
-  type ComponentVNode,
-  type ElementVNode,
-  type FragmentVNode,
-  type TextVNode,
-  type VNode,
-} from '@/vdom';
-import { removeAttribute, removeStyle, setAttribute, setStyle } from '@/attributes';
-import {
-  arraysDiff,
   ARRAY_DIFF_OP,
-  arraysDiffSequence,
-  isNotBlankOrEmptyString,
-  extractChildren,
-  objectsDiff,
   areNodesEqual,
+  arraysDiff,
+  arraysDiffSequence,
+  extractChildren,
+  isNotBlankOrEmptyString,
+  objectsDiff,
 } from '@/utils';
-import { addEventListener } from '@/events';
-import type { Component } from '@/component';
+import { TextVNode, type VNode, isClassComponent } from '@/vdom';
 
 export function patchDOM(
   oldVdom: VNode,
@@ -34,37 +27,40 @@ export function patchDOM(
     return newVdom;
   }
   newVdom.el = oldVdom.el;
-  switch (newVdom.type) {
-    case DOM_TYPES.TEXT: {
-      patchText(oldVdom as typeof newVdom, newVdom);
-      return newVdom;
-    }
-    case DOM_TYPES.ELEMENT: {
-      patchElement(oldVdom as typeof newVdom, newVdom, hostComponent);
-      break;
-    }
-    case DOM_TYPES.COMPONENT: {
-      patchComponent(oldVdom as typeof newVdom, newVdom);
-      // TODO test, if children should be patched
-      return newVdom;
-    }
+
+  if (newVdom.type === TextVNode) {
+    patchText(oldVdom, newVdom);
+    return newVdom;
   }
-  patchChildren(oldVdom as typeof newVdom, newVdom, hostComponent);
+  if (typeof newVdom.type === 'string') {
+    patchElement(oldVdom as typeof newVdom, newVdom, hostComponent);
+  }
+  if (isClassComponent(newVdom.type)) {
+    patchComponent(oldVdom, newVdom);
+    // TODO test, if children should be patched
+    return newVdom;
+  }
+
+  patchChildren(oldVdom, newVdom, hostComponent);
 
   return newVdom;
 }
 
-function patchText(oldVdom: TextVNode, newVdom: TextVNode) {
+function patchText(oldVdom: VNode, newVdom: VNode) {
   const el = oldVdom.el;
-  const { value: oldText } = oldVdom;
-  const { value: newText } = newVdom;
+  const {
+    children: [oldText],
+  } = oldVdom;
+  const {
+    children: [newText],
+  } = newVdom;
   if (oldText !== newText) {
-    el.nodeValue = newText;
+    el.nodeValue = newText as any as string;
   }
 }
 
-function patchElement(oldVdom: ElementVNode, newVdom: ElementVNode, hostComponent?: Component<unknown, unknown>) {
-  const el = oldVdom.el;
+function patchElement(oldVdom: VNode, newVdom: VNode, hostComponent?: Component<unknown, unknown>) {
+  const el = oldVdom.el as Element;
   const { class: oldClass, style: oldStyle, on: oldEvents, ...oldAttrs } = oldVdom.props;
   const { class: newClass, style: newStyle, on: newEvents, ...newAttrs } = newVdom.props;
   const { listeners: oldListeners } = oldVdom;
@@ -99,7 +95,11 @@ function patchClasses(el: Element, oldClass: string | string[], newClass: string
   }
 }
 
-function patchStyles(el: Element, oldStyle: Record<string, string>, newStyle: Record<string, string>) {
+function patchStyles(
+  el: Element,
+  oldStyle: Record<string, string>,
+  newStyle: Record<string, string>
+) {
   const { added, removed, updated } = objectsDiff(oldStyle, newStyle);
   for (const style of removed) {
     removeStyle(el, style);
@@ -135,13 +135,13 @@ function toClassList(classes: string | string[] = '') {
 }
 
 function patchChildren(
-  oldVdom: FragmentVNode | ElementVNode,
-  newVdom: FragmentVNode | ElementVNode,
+  oldVdom: VNode,
+  newVdom: VNode,
   hostComponent?: Component<unknown, unknown>
 ) {
   const oldChildren = extractChildren(oldVdom);
   const newChildren = extractChildren(newVdom);
-  const parentEl = oldVdom.el;
+  const parentEl = oldVdom.el as Element;
 
   const diffSeq = arraysDiffSequence(oldChildren, newChildren, areNodesEqual);
 
@@ -180,10 +180,10 @@ function patchChildren(
   }
 }
 
-function patchComponent(oldVdom: ComponentVNode<any, any>, newVdom: ComponentVNode<any, any>) {
+function patchComponent(oldVdom: VNode, newVdom: VNode) {
   const { component } = oldVdom;
   const { props } = newVdom;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const { key, ...componentProps } = props;
   component.updateProps(componentProps);
 

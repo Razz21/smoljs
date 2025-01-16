@@ -1,62 +1,65 @@
 import { setAttributes } from '@/attributes';
-import type { Component } from '@/component';
+import type { Component, ComponentInstance } from '@/component';
 import { addEventListeners } from '@/events';
 import {
-  DOM_TYPES,
-  type ComponentVNode,
-  type ElementVNode,
-  type FragmentVNode,
-  type TextVNode,
+  FragmentVNode,
+  TextVNode,
   type VNode,
+  isClassComponent,
+  isClassComponentVNode,
+  isElementVNode,
+  isFragmentVNode,
+  isTextVNode,
+  isVNode,
 } from '@/vdom';
 
-export function mountDOM(vdom: VNode, parentEl: Element, index?: number, hostComponent?: Component<unknown, unknown>) {
-  switch (vdom.type) {
-    case DOM_TYPES.TEXT: {
-      createTextNode(vdom, parentEl, index);
-      break;
-    }
-    case DOM_TYPES.ELEMENT: {
-      createElementNode(vdom, parentEl, index, hostComponent);
-      break;
-    }
-    case DOM_TYPES.FRAGMENT: {
-      createFragmentNodes(vdom, parentEl, index, hostComponent);
-      break;
-    }
-    case DOM_TYPES.COMPONENT: {
-      createComponentNode(vdom, parentEl, index);
-      break;
-    }
-    default: {
-      throw new Error(`Can'n mount DOM of type: ${(vdom as any).type}`);
-    }
+export function mountDOM(
+  vdom: VNode,
+  parentEl: Element,
+  index?: number,
+  hostComponent?: Component<unknown, unknown>
+) {
+  if (isClassComponentVNode(vdom)) {
+    return createComponentNode(vdom, parentEl, index);
+  } else if (isTextVNode(vdom)) {
+    return createTextNode(vdom, parentEl, index);
+  } else if (isFragmentVNode(vdom)) {
+    return createFragmentNodes(vdom, parentEl, index, hostComponent);
+  } else if (isElementVNode(vdom)) {
+    return createElementNode(vdom, parentEl, index, hostComponent);
   }
+  throw new Error(`Can'n mount DOM of type: ${(vdom as any).type}`);
 }
 
-function createTextNode(vdom: TextVNode, parentEl: Element, index?: number) {
-  const { value } = vdom;
+// TODO check this value
+function createTextNode(vdom: VNode, parentEl: Element, index?: number) {
+  const { children } = vdom;
+  const value = children.at(0);
+  if (typeof value !== 'string') {
+    console.error('Text node must be a string, got:', value);
+    return;
+  }
   const textNode = document.createTextNode(value);
   vdom.el = textNode;
 
   insert(textNode, parentEl, index);
 }
 
-function createElementNode<VDom extends ElementVNode>(
+function createElementNode<VDom extends VNode>(
   vdom: VDom,
   parentEl: Element,
   index: number,
   hostComponent?: Component<unknown, unknown>
 ) {
-  const { tag, children } = vdom;
-  const element = document.createElement(tag);
+  const { type, children } = vdom;
+  const element = document.createElement(type as string);
   addProps(element, vdom, hostComponent);
   vdom.el = element;
-  children.forEach((child) => mountDOM(child, element, null, hostComponent));
+  children.forEach((child) => isVNode(child) && mountDOM(child, element, null, hostComponent));
   insert(element, parentEl, index);
 }
 
-function addProps(el: Element, vdom: ElementVNode, hostComponent?: Component<unknown, unknown>) {
+function addProps(el: Element, vdom: VNode, hostComponent?: Component<unknown, unknown>) {
   const { on: events = {}, ...props } = vdom.props;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { key, ...attrs } = props;
@@ -65,18 +68,21 @@ function addProps(el: Element, vdom: ElementVNode, hostComponent?: Component<unk
 }
 
 function createFragmentNodes(
-  vdom: FragmentVNode,
+  vdom: VNode,
   parentEl: Element,
   index: number,
   hostComponent?: Component<unknown, unknown>
 ) {
   const { children } = vdom;
   vdom.el = parentEl;
-  children.forEach((child, i) => mountDOM(child, parentEl, index ? index + i : null, hostComponent));
+  children.forEach(
+    (child, i) =>
+      isVNode(child) && mountDOM(child, parentEl, index ? index + i : null, hostComponent)
+  );
 }
 
-function createComponentNode(vdom: ComponentVNode<unknown, unknown>, parentEl: Element, index: number) {
-  const Component = vdom.tag;
+function createComponentNode(vdom: VNode, parentEl: Element, index: number) {
+  const Component = vdom.type as ComponentInstance;
   const props = vdom.props;
   /*
    * propagate children to component JSX style

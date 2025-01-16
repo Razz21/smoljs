@@ -2,7 +2,14 @@ import { destroyDOM } from '@/destroy-dom';
 import { mountDOM } from '@/mount-dom';
 import { patchDOM } from '@/patch-dom';
 import { extractChildren } from '@/utils';
-import { DOM_TYPES, type VNode } from '@/vdom';
+import {
+  FragmentVNode,
+  type VNode,
+  type VNodeChildren,
+  isClassComponent,
+  isElementVNode,
+  isVNode,
+} from '@/vdom';
 import equals from 'fast-deep-equal';
 
 export abstract class Component<TProps, TState> {
@@ -12,7 +19,7 @@ export abstract class Component<TProps, TState> {
 
   state: Readonly<TState>;
   props: Readonly<TProps>;
-  children: VNode[];
+  children: VNodeChildren[];
 
   #refs: Record<string, Element> = {};
 
@@ -29,9 +36,9 @@ export abstract class Component<TProps, TState> {
     if (this.#vdom == null) {
       return [];
     }
-    if (this.#vdom.type === DOM_TYPES.FRAGMENT) {
+    if (this.#vdom.type === FragmentVNode) {
       return extractChildren(this.#vdom).flatMap((child) => {
-        if (child.type === DOM_TYPES.COMPONENT) {
+        if (isClassComponent(child.type)) {
           return child.component.elements;
         }
         return child.el;
@@ -43,7 +50,7 @@ export abstract class Component<TProps, TState> {
     return this.elements[0];
   }
   get offset() {
-    if (this.#vdom.type === DOM_TYPES.FRAGMENT) {
+    if (this.#vdom.type === FragmentVNode) {
       return Array.from(this.#hostEl.childNodes).indexOf(this.firstElement);
     }
     return 0;
@@ -105,18 +112,16 @@ export abstract class Component<TProps, TState> {
     this.onUpdated();
   }
   #setRefs() {
-    if (this.#vdom.type === 'element' && this.#vdom.ref) {
-      this.#setRef(this.#vdom.ref, this.#vdom.el);
+    if (isElementVNode(this.#vdom.type) && this.#vdom.ref) {
+      this.#setRef(this.#vdom.ref, this.#vdom.el as Element);
     }
-    if ('children' in this.#vdom) {
-      this.children = this.#vdom.children;
+    this.children = this.#vdom.children;
 
-      this.children.forEach((child) => {
-        if (child.type === 'element' && child.ref) {
-          this.#setRef(child.ref, child.el);
-        }
-      });
-    }
+    this.children.forEach((child) => {
+      if (isVNode(child) && child.ref) {
+        this.#setRef(child.ref, child.el as Element);
+      }
+    });
   }
   #setRef(ref: string, el: Element) {
     if (Object.prototype.hasOwnProperty.call(this.#refs, ref)) {

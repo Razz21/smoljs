@@ -1,6 +1,6 @@
 import type { Component } from '@/component';
-import type { ElementVNodeListeners } from '@/vdom';
 import type { AnyFunction } from '@/types';
+import type { ElementVNodeListeners } from '@/vdom';
 
 export function addEventListener(
   eventName: string,
@@ -28,7 +28,7 @@ export function addEventListeners(
   return addedListeners;
 }
 
-export function removeEventListeners(listeners: ElementVNodeListeners, el: Element) {
+export function removeEventListeners(listeners: ElementVNodeListeners, el: ChildNode) {
   Object.entries(listeners).forEach(([eventName, handler]) => {
     el.removeEventListener(eventName, handler);
   });

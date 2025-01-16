@@ -1,40 +1,19 @@
 import { removeEventListeners } from '@/events';
-import { DOM_TYPES, type ElementVNode, type FragmentVNode, type TextVNode, type VNode } from '@/vdom';
+import { type VNode, isClassComponent } from '@/vdom';
 
 export function destroyDOM(vdom: VNode) {
   const { type } = vdom;
 
-  switch (type) {
-    case DOM_TYPES.TEXT: {
-      removeTextNode(vdom);
-      break;
-    }
-    case DOM_TYPES.ELEMENT: {
-      removeElement(vdom);
-      break;
-    }
-    case DOM_TYPES.FRAGMENT: {
-      removeFragmentNodes(vdom);
-      break;
-    }
-    case DOM_TYPES.COMPONENT: {
-      vdom.component.unmount();
-      break;
-    }
-    default: {
-      throw new Error(`Can't destroy DOM of type: ${type}`);
-    }
+  if (isClassComponent(type)) {
+    vdom.component.unmount();
+    return;
   }
+  return removeElement(vdom);
 }
 
-function removeTextNode(vdom: TextVNode) {
-  const { el } = vdom;
-  el.remove();
-}
-
-function removeElement(vdom: ElementVNode) {
+function removeElement(vdom: VNode) {
   const { el, children, listeners } = vdom;
-  el.remove();
+  el?.remove();
   children.forEach(destroyDOM);
   if (listeners) {
     removeEventListeners(listeners, el);
@@ -42,9 +21,4 @@ function removeElement(vdom: ElementVNode) {
     // https://v8.dev/docs/hidden-classes
     delete vdom.listeners;
   }
-}
-
-function removeFragmentNodes(vdom: FragmentVNode) {
-  const { children } = vdom;
-  children.forEach(destroyDOM);
 }

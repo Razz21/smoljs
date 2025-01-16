@@ -1,106 +1,47 @@
-import { isPrototypeOf, withoutNulls } from '@/utils';
 import { Component, type ComponentInstance, type InferProps } from '@/component';
 import type { Attributes, FunctionComponent } from '@/components';
 import type { WritableAttributes } from '@/types';
-import { mapTextNodes } from './helpers';
-import {
-  DOM_TYPES,
-  type ChildrenVNode,
-  type ComponentVNode,
-  type ElementTag,
-  type ElementVNode,
-  type FragmentVNode,
-  type TextVNode,
-  type VNode,
-  type VNodeProps,
-} from './types';
+import { isPrototypeOf } from '@/utils';
+import { createVNode } from './VNode';
+import type { ElementTag } from './types';
+import { FragmentVNode, type VNode, type VNodeChildren, type VNodeProps } from './vnode';
 
 export function h<P = {}>(
-  tag: FunctionComponent<P>,
+  type: FunctionComponent<P>,
   props?: (Attributes & P) | null,
-  children?: ChildrenVNode[] | null
+  children?: VNodeChildren[] | null
 ): VNode;
 export function h<T extends ElementTag>(
-  tag: T,
+  type: T,
   props?: VNodeProps<WritableAttributes<HTMLElementTagNameMap[T]>> | null,
-  children?: ChildrenVNode[] | null
-): ElementVNode<ElementTag>;
+  children?: VNodeChildren[] | null
+): VNode;
 export function h<T extends ComponentInstance<any, any, any>>(
-  tag: T,
+  type: T,
   props?: VNodeProps<InferProps<T>> | null,
-  children?: ChildrenVNode[] | null
-): ComponentVNode<any, any>;
-export function h(tag: any, props: any, children = []) {
-  props = props ?? {};
-
-  if (!Array.isArray(children)) {
-    children = [children];
+  children?: VNodeChildren[] | null
+): VNode;
+export function h(type: any, props?: any, children?: VNodeChildren[] | null) {
+  if (typeof type === 'string') {
+    return createVNode(type, props, children);
   }
-
-  // Flatten children's array, for nested or for-loop-generated elements
-  children = children.flat(1);
-
-  if (typeof tag === 'string') {
-    return createElementVNode(tag, props, children) as any;
+  if (isClassComponent(type)) {
+    return createVNode(type, props, children);
   }
-  if (isClassComponent(tag)) {
-    return createComponentVNode(tag, props, children) as any;
+  if (isFunctionComponent(type)) {
+    return type(props, { children }) as any;
   }
-  if (isFunctionComponent(tag)) {
-    return tag(props, { children }) as any;
-  }
-  throw new Error(`Unknown component tag type: ${tag} (${typeof tag})`);
+  throw new Error(`Unknown component tag type: ${type} (${typeof type})`);
 }
 
-function isClassComponent(tag: unknown): tag is ComponentInstance<any, any, any> {
-  return typeof tag === 'function' && isPrototypeOf(Component, tag);
+export function isClassComponent(type: unknown): type is ComponentInstance<any, any, any> {
+  return isFunctionComponent(type) && isPrototypeOf(Component, type);
 }
 
-function isFunctionComponent(tag: unknown): tag is FunctionComponent<any> {
-  return typeof tag === 'function';
+export function isFunctionComponent(type: unknown): type is FunctionComponent<any> {
+  return typeof type === 'function';
 }
 
-function createElementVNode(
-  tag: string,
-  props: VNodeProps<any>,
-  children: ChildrenVNode[]
-): ElementVNode {
-  const { ref, ...rest } = props ?? {};
-  return {
-    tag,
-    type: DOM_TYPES.ELEMENT,
-    props: rest,
-    children: mapTextNodes(withoutNulls(children)),
-    el: null,
-    listeners: null,
-    ref,
-  };
-}
-function createComponentVNode(
-  tag: ComponentInstance<any, any, any>,
-  props: VNodeProps<any>,
-  children: ChildrenVNode[]
-): ComponentVNode<any, any> {
-  return {
-    tag,
-    type: DOM_TYPES.COMPONENT,
-    props: props ?? {},
-    children: mapTextNodes(withoutNulls(children)),
-    component: null,
-    el: null,
-  };
-}
-
-export function hString(str: string): TextVNode {
-  return {
-    type: DOM_TYPES.TEXT,
-    value: str,
-  };
-}
-
-export function hFragment(vNodes: ChildrenVNode[]): FragmentVNode {
-  return {
-    type: DOM_TYPES.FRAGMENT,
-    children: mapTextNodes(withoutNulls(vNodes)),
-  };
+export function hFragment(vNodes: VNodeChildren[]): VNode {
+  return createVNode(FragmentVNode, null, vNodes);
 }

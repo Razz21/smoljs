@@ -1,12 +1,12 @@
-import { hString } from '../constructors';
-import { type ChildrenVNode, DOM_TYPES, type VNode } from '../types';
+import { withoutNulls } from '@/utils';
+import { type VNode, type VNodeChildren, createTextVNode, isVNode } from '../VNode';
 
-export function mapTextNodes(children: ChildrenVNode[]): VNode[] {
-  return children.map((child) => (isVNode(child) ? child : hString(String(child))));
+export function normalizeChildren(children: VNodeChildren[]): VNode[] {
+  return children.map((child) => (isVNode(child) ? child : createTextVNode(String(child))));
 }
 
-const vNodeTypes = Object.values(DOM_TYPES);
+export function removeNullChildren(children?: VNodeChildren[]): VNodeChildren[] {
+  if (!children) return [];
 
-function isVNode(child: ChildrenVNode): child is VNode {
-  return typeof child === 'object' && 'type' in child && vNodeTypes.includes(child.type);
+  return withoutNulls(children);
 }

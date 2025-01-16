@@ -1,19 +1,15 @@
-import { DOM_TYPES, type ElementVNode, type VNode } from '@/vdom';
-
-type VNodeWithChildren = Pick<ElementVNode, 'children'> & {
-  type: (typeof DOM_TYPES)[keyof typeof DOM_TYPES];
-};
+import { FragmentVNode, type VNode } from '@/vdom';
 
 export const isPrototypeOf = Function.call.bind(Object.prototype.isPrototypeOf);
 
-export function extractChildren<TVNode extends VNodeWithChildren>(vdom: TVNode): VNode[] {
+export function extractChildren(vdom: VNode): VNode[] {
   if (vdom.children == null) {
     return [];
   }
   const children: VNode[] = [];
 
   for (const child of vdom.children) {
-    if (child.type === DOM_TYPES.FRAGMENT) {
+    if (child.type === FragmentVNode) {
       children.push(...extractChildren(child));
     } else {
       children.push(child);

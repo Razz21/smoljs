@@ -1,20 +1,21 @@
-import { DOM_TYPES, type VNode } from '@/vdom';
+import { type VNode, isClassComponentVNode, isElementVNode } from '@/vdom';
 
 export function areNodesEqual(nodeOne: VNode, nodeTwo: VNode): boolean {
   if (nodeOne.type !== nodeTwo.type) {
     return false;
   }
-  if (nodeOne.type === DOM_TYPES.ELEMENT || nodeOne.type === DOM_TYPES.COMPONENT) {
+
+  if (isElementVNode(nodeOne) || isClassComponentVNode(nodeOne)) {
     const {
-      tag: tagOne,
+      type: typeOne,
       props: { key: keyOne },
     } = nodeOne;
     const {
-      tag: tagTwo,
+      type: typeTwo,
       props: { key: keyTwo },
     } = nodeTwo as typeof nodeOne;
-    // FIXME: key comparison is extremely expensive
-    return tagOne === tagTwo && keyOne === keyTwo;
+    // TODO: test performance of key comparison
+    return typeOne === typeTwo && keyOne === keyTwo;
   }
 
   return true;

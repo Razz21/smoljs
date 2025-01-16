@@ -1,8 +1,8 @@
 import './style.css';
-import { defineComponent, hFragment, createApp, h } from 'simple-vue';
+import { createApp, defineComponent, h, hFragment } from 'simple-vue';
 import { Grid } from './components';
 
-const disclaimer = `⚠️ Warning: Use This Benchmark at Your Own Risk! ⚠️
+const _disclaimer = `⚠️ Warning: Use This Benchmark at Your Own Risk! ⚠️
 
 By proceeding, you acknowledge that:
 
@@ -28,7 +28,7 @@ const App = defineComponent({
     ]);
   },
   onMounted() {
-    alert(disclaimer);
+    // alert(disclaimer);
   },
 });
 
