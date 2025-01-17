@@ -1,12 +1,31 @@
 {
-  "name": "simple-vue",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "@smoljs/monorepo",
+  "version": "0.0.1",
+  "description": "Yet Another Smol JavaScript Framework",
+  "author": "@Razz21",
+  "license": "MIT",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:packages": "pnpm --filter \"./packages/*\" build",
+    "lint": "biome ci .",
+    "lint:fix": "biome lint --apply .",
+    "prepare": "husky"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/node": "^22.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.3.0",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "packageManager": "pnpm@10.0.0",
+  "lint-staged": {
+    "*.{js,cjs,mjs,ts,tsx}": ["biome lint --apply --no-errors-on-unmatched"]
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["@biomejs/biome", "esbuild"]
+  }
 }

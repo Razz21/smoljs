@@ -1,0 +1,80 @@
+:root {
+  --bg-color: #0f0a1e;
+  --primary-color: #9333ea;
+  --primary-hover: #a855f7;
+  --primary-glow: rgba(147, 51, 234, 0.302);
+  --text-color: #e2e8f0;
+  --text-muted: #94a3b8;
+  --border-color: #2d2139;
+  --app-width: 390px;
+  --app-height: 844px;
+  --container-padding: 1.25rem;
+  --header-spacing: 1.5rem;
+  --content-spacing: 1.25rem;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+#app {
+  width: 100%;
+  max-width: var(--app-width);
+  padding: var(--container-padding);
+  background: var(--bg-color);
+  border-radius: 2.5rem;
+  box-shadow: 0 0 1px 1px rgba(255, 255, 255, 0.13), 0 8px 40px rgba(0, 0, 0, 0.48);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+h1 {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: var(--header-spacing);
+  text-shadow: 0 0 20px var(--primary-glow);
+}
+
+button {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.875rem 1.25rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 15px var(--primary-glow);
+  margin: 0.5rem;
+}
+
+button:hover {
+  background: var(--primary-hover);
+}
+
+button:active {
+  transform: scale(0.98);
+  box-shadow: 0 0 10px var(--primary-glow);
+}
+
+.counter {
+  font-size: 3rem;
+  margin: var(--content-spacing) 0;
+  color: var(--primary-color);
+  text-shadow: 0 0 10px var(--primary-glow);
+}
+
+button + button {
+  margin-left: 1rem;
+}
