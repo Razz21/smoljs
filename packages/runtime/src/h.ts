@@ -13,19 +13,21 @@ import {
   isFunctionComponent,
 } from '@/vdom';
 
-export function h<P = {}>(
-  type: FunctionComponent<P>,
-  props?: (Attributes & P) | null,
+type ElementProps<T extends ElementTag> = WritableAttributes<HTMLElementTagNameMap[T]>;
+type InferComponentProps<T> = T extends ComponentInstance
+  ? InferProps<T>
+  : T extends FunctionComponent<any>
+    ? Parameters<T>[0]
+    : never;
+
+export function h<T>(
+  type: T,
+  props?: (Attributes & InferComponentProps<T>) | null,
   children?: VNodeChildren[] | null
 ): VNode;
 export function h<T extends ElementTag>(
   type: T,
-  props?: VNodeProps<WritableAttributes<HTMLElementTagNameMap[T]>> | null,
-  children?: VNodeChildren[] | null
-): VNode;
-export function h<T extends ComponentInstance<any, any, any>>(
-  type: T,
-  props?: VNodeProps<InferProps<T>> | null,
+  props?: VNodeProps<ElementProps<T>> | null,
   children?: VNodeChildren[] | null
 ): VNode;
 export function h(type: any, props?: any, children?: VNodeChildren[] | null) {
