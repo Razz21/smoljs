@@ -4,15 +4,16 @@ import { TodoElement } from './TodoElement';
 export function TodoList(props: {
   todos: Todo[];
   onDelete: (id: Todo['id']) => void;
-  onChange: (id: Todo['id'], value: string) => void;
+  onChange: (id: Todo['id'], value: Partial<Pick<Todo, 'value' | 'completed'>>) => void;
 }) {
   return (
-    <ul className="todos">
+    <ul className="todo-items">
       {props.todos.map((todo) => (
         <TodoElement
+          completed={todo.completed}
           key={todo.id}
           onChange={(value) => props.onChange(todo.id, value)}
-          onClick={() => {
+          onDelete={() => {
             props.onDelete(todo.id);
           }}
         >

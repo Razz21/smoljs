@@ -1,101 +1,80 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
-  color: #213547;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-
-a:hover {
-  color: #747bff;
+  --bg-color: #0f0a1e;
+  --primary-color: #9333ea;
+  --primary-hover: #a855f7;
+  --primary-glow: rgba(147, 51, 234, 0.302);
+  --text-color: #e2e8f0;
+  --text-muted: #94a3b8;
+  --border-color: #2d2139;
+  --app-width: 390px;
+  --app-height: 844px;
+  --container-padding: 1.25rem;
+  --header-spacing: 1.5rem;
+  --content-spacing: 1.25rem;
 }
 
 body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
   margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background-color: rgba(255, 255, 255, 0.95);
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
 }
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  width: 100%;
+  max-width: var(--app-width);
+  padding: var(--container-padding);
+  background: var(--bg-color);
+  border-radius: 2.5rem;
+  box-shadow: 0 0 1px 1px rgba(255, 255, 255, 0.13), 0 8px 40px rgba(0, 0, 0, 0.48);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
+h1 {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-bottom: var(--header-spacing);
+  text-shadow: 0 0 20px var(--primary-glow);
+}
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #213547;
-  color: #f9f9f9;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.875rem 1.25rem;
+  border-radius: 12px;
+  font-size: 1rem;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: transform 0.2s, box-shadow 0.2s;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 15px var(--primary-glow);
+  margin: 0.5rem;
 }
-
 
 button:hover {
-  border-color: #646cff;
+  background: var(--primary-hover);
 }
 
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+button:active {
+  transform: scale(0.98);
+  box-shadow: 0 0 10px var(--primary-glow);
 }
 
-
-
-.todo {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  margin-top: 0.25rem;
+.counter {
+  font-size: 3rem;
+  margin: var(--content-spacing) 0;
+  color: var(--primary-color);
+  text-shadow: 0 0 10px var(--primary-glow);
 }
 
-button.delete-btn {
-  padding: 0.3em;
-  font-size: 0.5rem;
-  width: 1.5rem;
-  height: 1.5rem;
-}
-
-form {
-  display: flex;
-  gap: 0.5rem;
-
-}
-
-
-input {
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  background-color: white;
-  border-width: 1px;
-  border-color: #aaa;
-  font-weight: 600;
-}
-
-input:focus {
-  border-color: #646cff;
-  outline: 2px solid transparent;
-  outline-offset: 2px;
+button + button {
+  margin-left: 1rem;
 }

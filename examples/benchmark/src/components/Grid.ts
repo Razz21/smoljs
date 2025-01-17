@@ -14,21 +14,17 @@ const GridItemFC = ({ ...rest }: {}) => {
   return h('div', {
     ...rest,
     class: 'grid-item',
-    style: { opacity: Math.random().toPrecision(2) },
   });
 };
 
 function arrItems(items: number) {
-  return new Array(items)
-    .fill(null)
-    .map((_, i) => i)
-    .sort(() => Math.random() - 0.5);
+  return new Array(items).fill(null).map((_) => Math.random().toPrecision(2));
 }
 
 export const Grid = defineComponent({
   state() {
     return {
-      elements: [] as number[],
+      elements: [] as string[],
       rAF: undefined as number | undefined,
       itemsToRender: 10,
       selectItems: [
@@ -48,12 +44,12 @@ export const Grid = defineComponent({
       const value = +(e.currentTarget as HTMLInputElement).value;
       this.updateState({
         itemsToRender: value,
-      })
-    }
+      });
+    },
   },
   render() {
-    const onChange = this.onChange;
     const state = this.state;
+    const onChange = this.onChange;
 
     return hFragment([
       h('fieldset', { class: 'element-to-move' }, [
@@ -74,8 +70,8 @@ export const Grid = defineComponent({
       h(
         'div',
         { class: 'grid', style: {} },
-        state.elements.map((_, index) => {
-          return h(GridItemFC, { key: index });
+        state.elements.map((el, index) => {
+          return h(GridItemFC, { key: index, style: { opacity: el } });
         })
       ),
     ]);

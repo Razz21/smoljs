@@ -2,12 +2,13 @@ import { Fragment, defineComponent } from 'smoljs';
 import { CreateTodo, TodoList } from './components';
 import type { Todo } from './types';
 
-function Heading(props: { children: JSX.Element }): JSX.Element {
-  return <h1>{props.children}</h1>;
-}
-
-function TodoListPlaceholder() {
-  return <div>No todos to display, add one!</div>;
+function AppHeader(): JSX.Element {
+  return (
+    <header class="app-header">
+      <h1>Smol.js Todo</h1>
+      <p>A simple TODO app built with Smol.js</p>
+    </header>
+  );
 }
 
 function generateId() {
@@ -26,48 +27,64 @@ export const App = defineComponent({
   state() {
     return {
       todos: [
-        {
-          value: 'Buy milk',
-          id: generateId(),
-          completed: false,
-        },
-      ] as Todo[],
+        { value: 'Buy groceries', completed: false, id: generateId() },
+        { value: 'Call mom', completed: false, id: generateId() },
+        { value: 'Finish project', completed: true, id: generateId() },
+        { value: 'Clean the house', completed: false, id: generateId() },
+        { value: 'Read a book', completed: true, id: generateId() },
+        { value: 'Walk the dog', completed: false, id: generateId() },
+        { value: 'Prepare dinner', completed: false, id: generateId() },
+        { value: 'Go to the gym', completed: true, id: generateId() },
+        { value: 'Fix the bike', completed: false, id: generateId() },
+        { value: 'Plan the weekend trip', completed: false, id: generateId() },
+      ] satisfies Todo[],
     };
   },
-  render(props: { title: string }) {
-    const state = this.state;
-    const onSubmit = ({ todo }: { todo: string }) => {
+  methods: {
+    onSubmit({ todo }: { todo: string }) {
       this.updateState((prevState) => ({
         ...prevState,
-        todos: [...prevState.todos, createTodo(todo)],
+        todos: [createTodo(todo), ...prevState.todos],
       }));
-    };
-    const onDelete = (idToRemove: Todo['id']) => {
+    },
+    onDelete(idToRemove: Todo['id']) {
       this.updateState((prevState) => ({
         ...prevState,
         todos: prevState.todos.filter(({ id }) => id !== idToRemove),
       }));
-    };
-    const onChange = (id: Todo['id'], value: string) => {
+    },
+    onChange(id: Todo['id'], value: Partial<Pick<Todo, 'value' | 'completed'>>) {
+      console.log('onChange', id, value);
       this.updateState((prevState) => {
         const indexToChange = prevState.todos.findIndex((todo) => todo.id === id);
         if (indexToChange === -1) {
           return prevState;
         }
         const newTodos = [...prevState.todos];
-        newTodos[indexToChange] = { ...newTodos[indexToChange], value };
+        newTodos[indexToChange] = { ...newTodos[indexToChange], ...value };
         return { ...prevState, todos: newTodos };
       });
-    };
+    },
+  },
+  render() {
+    const state = this.state;
+    const onSubmit = this.onSubmit.bind(this);
+    const onDelete = this.onDelete.bind(this);
+    const onChange = this.onChange.bind(this);
+
     return (
       <Fragment>
-        <Heading>{props.title}</Heading>
-        <CreateTodo onSubmit={onSubmit} />
-        {state.todos.length > 0 ? (
-          <TodoList onDelete={onDelete} onChange={onChange} todos={state.todos} />
-        ) : (
-          <TodoListPlaceholder />
-        )}
+        <div class="app-container">
+          <AppHeader />
+          <div class="todo-list">
+            <CreateTodo onSubmit={onSubmit} />
+            <hr />
+            <TodoList onChange={onChange} onDelete={onDelete} todos={state.todos} />
+            <div class="todo-stats">
+              {state.todos.filter((t) => !t.completed).length} items left
+            </div>
+          </div>
+        </div>
       </Fragment>
     );
   },

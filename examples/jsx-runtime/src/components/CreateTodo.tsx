@@ -5,7 +5,7 @@ type CreateTodoProps = {
 };
 
 function CreateTodoTitle() {
-  return <h2>Create Todos</h2>;
+  return <h2 className='todo-input-header'>Create Tasks</h2>;
 }
 
 function CreateTodoForm({ onSubmit }: CreateTodoProps) {
@@ -18,9 +18,16 @@ function CreateTodoForm({ onSubmit }: CreateTodoProps) {
     (event?.target as HTMLFormElement).reset();
   }
   return (
-    <form onSubmit={onSubmitHandler} autocomplete="off">
-      <input name="todo" type="text" placeholder="Add todo" />
-      <button type="submit">Submit</button>
+    <form
+      className="todo-input-group"
+      placeholder="Add a new task..."
+      onSubmit={onSubmitHandler}
+      autocomplete="off"
+    >
+      <input name="todo" type="text" className="todo-input" placeholder="Add a new task..." />
+      <button className="todo-add-btn" type="submit">
+        <span>&#x27A4;</span>
+      </button>
     </form>
   );
 }
