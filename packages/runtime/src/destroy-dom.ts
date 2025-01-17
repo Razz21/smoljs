@@ -1,50 +1,39 @@
 import { removeEventListeners } from '@/events';
-import { DOM_TYPES, type ElementVNode, type FragmentVNode, type TextVNode, type VNode } from '@/vdom';
+import { type VNode, isClassComponent } from '@/vdom';
 
-export function destroyDOM(vdom: VNode) {
-  const { type } = vdom;
+/**
+ * Recursively destroys a VNode and its children, unmounting components and cleaning up DOM elements.
+ */
+export function destroyVNode(vnode: VNode): void {
+  const { type } = vnode;
 
-  switch (type) {
-    case DOM_TYPES.TEXT: {
-      removeTextNode(vdom);
-      break;
-    }
-    case DOM_TYPES.ELEMENT: {
-      removeElement(vdom);
-      break;
-    }
-    case DOM_TYPES.FRAGMENT: {
-      removeFragmentNodes(vdom);
-      break;
-    }
-    case DOM_TYPES.COMPONENT: {
-      vdom.component.unmount();
-      break;
-    }
-    default: {
-      throw new Error(`Can't destroy DOM of type: ${type}`);
-    }
+  if (isClassComponent(type)) {
+    destroyComponentVNode(vnode);
+  } else {
+    destroyElementVNode(vnode);
   }
 }
 
-function removeTextNode(vdom: TextVNode) {
-  const { el } = vdom;
-  el.remove();
+/**
+ * Destroys a class component VNode by unmounting its component.
+ */
+function destroyComponentVNode(vnode: VNode): void {
+  vnode.component?.unmount();
 }
 
-function removeElement(vdom: ElementVNode) {
-  const { el, children, listeners } = vdom;
-  el.remove();
-  children.forEach(destroyDOM);
+/**
+ * Destroys a non-component VNode by removing its DOM element, event listeners, and recursively cleaning children.
+ */
+function destroyElementVNode(vnode: VNode): void {
+  const { el, children, listeners } = vnode;
+
   if (listeners) {
-    removeEventListeners(listeners, el);
-    // FIXME: delete operator has performance negative effects for the V8 hidden classes pattern
-    // https://v8.dev/docs/hidden-classes
-    delete vdom.listeners;
+    if (el instanceof Element) {
+      removeEventListeners(listeners, el);
+    }
+    vnode.listeners = null;
   }
-}
 
-function removeFragmentNodes(vdom: FragmentVNode) {
-  const { children } = vdom;
-  children.forEach(destroyDOM);
+  children.forEach(destroyVNode);
+  el?.remove();
 }

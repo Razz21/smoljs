@@ -42,14 +42,17 @@ export const Grid = defineComponent({
       ],
     };
   },
-  render() {
-    const onChange = (e?: Event) => {
+  methods: {
+    onChange(e?: Event) {
       if (!e?.currentTarget) return;
       const value = +(e.currentTarget as HTMLInputElement).value;
       this.updateState({
         itemsToRender: value,
-      });
-    };
+      })
+    }
+  },
+  render() {
+    const onChange = this.onChange;
     const state = this.state;
 
     return hFragment([
@@ -64,7 +67,7 @@ export const Grid = defineComponent({
               on: { click: onChange },
               checked: state.itemsToRender === item.value || undefined,
             }),
-            [`${item.label} (${item.value})`],
+            `${item.label} (${item.value})`,
           ]);
         }),
       ]),

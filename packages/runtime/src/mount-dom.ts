@@ -1,105 +1,145 @@
-import { setAttributes } from '@/attributes';
-import type { Component } from '@/component';
+import { applyAttributes } from '@/attributes';
+import type { Component, ComponentInstance } from '@/component';
 import { addEventListeners } from '@/events';
 import {
-  DOM_TYPES,
-  type ComponentVNode,
-  type ElementVNode,
-  type FragmentVNode,
-  type TextVNode,
   type VNode,
+  isClassComponentVNode,
+  isElementVNode,
+  isFragmentVNode,
+  isTextVNode,
+  isVNode,
 } from '@/vdom';
 
-export function mountDOM(vdom: VNode, parentEl: Element, index?: number, hostComponent?: Component<unknown, unknown>) {
-  switch (vdom.type) {
-    case DOM_TYPES.TEXT: {
-      createTextNode(vdom, parentEl, index);
-      break;
-    }
-    case DOM_TYPES.ELEMENT: {
-      createElementNode(vdom, parentEl, index, hostComponent);
-      break;
-    }
-    case DOM_TYPES.FRAGMENT: {
-      createFragmentNodes(vdom, parentEl, index, hostComponent);
-      break;
-    }
-    case DOM_TYPES.COMPONENT: {
-      createComponentNode(vdom, parentEl, index);
-      break;
-    }
-    default: {
-      throw new Error(`Can'n mount DOM of type: ${(vdom as any).type}`);
-    }
+/**
+ * Mounts a VNode onto the DOM.
+ */
+export function mountVNode(
+  vnode: VNode,
+  parentElement: Element,
+  index?: number,
+  hostComponent?: Component<unknown, unknown>
+): void {
+  if (isClassComponentVNode(vnode)) {
+    mountComponentVNode(vnode, parentElement, index);
+  } else if (isTextVNode(vnode)) {
+    mountTextVNode(vnode, parentElement, index);
+  } else if (isFragmentVNode(vnode)) {
+    mountFragmentVNode(vnode, parentElement, index, hostComponent);
+  } else if (isElementVNode(vnode)) {
+    mountElementVNode(vnode, parentElement, index, hostComponent);
+  } else {
+    throw new Error(`Cannot mount unknown VNode type: ${(vnode as any).type}`);
   }
 }
 
-function createTextNode(vdom: TextVNode, parentEl: Element, index?: number) {
-  const { value } = vdom;
-  const textNode = document.createTextNode(value);
-  vdom.el = textNode;
+/**
+ * Mounts a text VNode to the DOM.
+ */
+function mountTextVNode(vnode: VNode, parentElement: Element, index?: number): void {
+  const { children } = vnode;
+  const textContent = children.at(0);
+  if (typeof textContent !== 'string') {
+    console.error('Expected a string for text node, received:', textContent);
+    return;
+  }
+  const textNode = document.createTextNode(textContent);
+  vnode.el = textNode;
 
-  insert(textNode, parentEl, index);
+  insertNode(textNode, parentElement, index);
 }
 
-function createElementNode<VDom extends ElementVNode>(
-  vdom: VDom,
-  parentEl: Element,
-  index: number,
+/**
+ * Mounts an element VNode to the DOM.
+ */
+function mountElementVNode(
+  vnode: VNode,
+  parentElement: Element,
+  index?: number,
   hostComponent?: Component<unknown, unknown>
-) {
-  const { tag, children } = vdom;
-  const element = document.createElement(tag);
-  addProps(element, vdom, hostComponent);
-  vdom.el = element;
-  children.forEach((child) => mountDOM(child, element, null, hostComponent));
-  insert(element, parentEl, index);
+): void {
+  const { type, children } = vnode;
+  const element = document.createElement(type as string);
+  vnode.el = element;
+
+  applyVNodeProps(element, vnode, hostComponent);
+
+  children.forEach((child) => {
+    if (isVNode(child)) {
+      mountVNode(child, element, null, hostComponent);
+    }
+  });
+
+  insertNode(element, parentElement, index);
 }
 
-function addProps(el: Element, vdom: ElementVNode, hostComponent?: Component<unknown, unknown>) {
-  const { on: events = {}, ...props } = vdom.props;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { key, ...attrs } = props;
-  vdom.listeners = addEventListeners(events, el, hostComponent);
-  setAttributes(el, attrs as any);
-}
-
-function createFragmentNodes(
-  vdom: FragmentVNode,
-  parentEl: Element,
-  index: number,
+/**
+ * Applies props and attributes to an element.
+ */
+function applyVNodeProps(
+  element: Element,
+  vnode: VNode,
   hostComponent?: Component<unknown, unknown>
-) {
-  const { children } = vdom;
-  vdom.el = parentEl;
-  children.forEach((child, i) => mountDOM(child, parentEl, index ? index + i : null, hostComponent));
+): void {
+  const { on: eventListeners = {}, ...props } = vnode.props;
+  const { key, ...attributes } = props;
+
+  vnode.listeners = addEventListeners(eventListeners, element, hostComponent);
+  applyAttributes(element, attributes);
 }
 
-function createComponentNode(vdom: ComponentVNode<unknown, unknown>, parentEl: Element, index: number) {
-  const Component = vdom.tag;
-  const props = vdom.props;
-  /*
-   * propagate children to component JSX style
-   */
-  const component = new Component(props, vdom.children);
+/**
+ * Mounts a fragment VNode to the DOM.
+ */
+function mountFragmentVNode(
+  vnode: VNode,
+  parentElement: Element,
+  index?: number,
+  hostComponent?: Component<unknown, unknown>
+): void {
+  const { children } = vnode;
+  vnode.el = parentElement;
 
-  component.mount(parentEl, index);
-  vdom.component = component;
-  vdom.el = component.firstElement;
+  children.forEach((child, i) => {
+    if (isVNode(child)) {
+      mountVNode(child, parentElement, index ? index + i : null, hostComponent);
+    }
+  });
 }
 
-export function insert(el: Node, parentEl: Element, index?: any) {
+/**
+ * Mounts a class component VNode to the DOM.
+ */
+function mountComponentVNode(
+  vnode: VNode,
+  parentElement: Element,
+  index?: number
+): void {
+  const ComponentClass = vnode.type as ComponentInstance;
+  const props = vnode.props;
+
+  // Initialize and mount the component.
+  const component = new ComponentClass(props, vnode.children);
+  component.mount(parentElement, index);
+
+  vnode.component = component;
+  vnode.el = component.firstElement;
+}
+
+/**
+ * Inserts a node into the parent element at the specified index.
+ */
+export function insertNode(node: Node, parentElement: Element, index?: number): void {
   if (index == null) {
-    parentEl.append(el);
+    parentElement.append(node);
     return;
   }
   if (index < 0) {
-    throw new Error(`Index must be a positive intever, got ${index}`);
+    throw new Error(`Index must be a non-negative integer, got ${index}`);
   }
-  const children = parentEl.childNodes;
+  const children = parentElement.childNodes;
   if (index >= children.length) {
-    parentEl.append(el);
+    parentElement.append(node);
   } else {
-    parentEl.insertBefore(el, children[index]);
+    parentElement.insertBefore(node, children[index]);
   }
 }

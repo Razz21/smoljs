@@ -1,10 +1,10 @@
-import type { VNode } from '@/vdom';
+import type { VNodeChildren } from '@/vdom';
 import type { Component } from './component';
 
 type Constructor<T> = new (...args: any) => T;
 
 export type ComponentContext = {
-  children: VNode[];
+  children: VNodeChildren[];
 };
 
 export type DefineComponentArgs<TProps, TState, TMethods> = {
@@ -23,5 +23,5 @@ export type ComponentInstance<TProps = unknown, TState = unknown, TMethods = unk
 export type InferProps<T> = T extends Component<infer Props, any>
   ? Props
   : T extends ComponentInstance<infer Props>
-  ? Props
-  : never;
+    ? Props
+    : never;

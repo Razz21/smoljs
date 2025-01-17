@@ -1,154 +1,140 @@
-import type { Nullable } from '@/types'
+import type { Nullable } from '@/types';
 
-export function withoutNulls<T>(arr: Nullable<T>[]): T[] {
-  return arr.filter((value) => value != null)
+export function filterNonNullable<T>(arr: ReadonlyArray<Nullable<T>>): T[] {
+  return arr.filter((value): value is T => value != null);
 }
 
-export function arraysDiff<T>(oldArray: T[], newArray: T[]) {
+export function calculateArrayDifference<T>(
+  originalArray: ReadonlyArray<T>,
+  updatedArray: ReadonlyArray<T>
+): { added: T[]; removed: T[] } {
   return {
-    added: newArray.filter((element) => !oldArray.includes(element)),
-    removed: oldArray.filter((element) => !newArray.includes(element)),
-  }
+    added: updatedArray.filter((element) => !originalArray.includes(element)),
+    removed: originalArray.filter((element) => !updatedArray.includes(element)),
+  };
 }
 
-export const ARRAY_DIFF_OP = {
+export const ArrayDiffOperationType = {
   ADD: 'add',
   REMOVE: 'remove',
   MOVE: 'move',
   NOOP: 'noop',
-} as const
+} as const;
 
-export class ArrayWithOriginalIndices<T> {
-  #array: T[] = []
-  #originalIndices: number[] = []
-  #equalsFn: <T, U>(a: T, b: U) => boolean
+export class IndexedArrayTracker<T> {
+  #trackedArray: T[];
+  #originalItemIndices: number[];
+  #compareFn: (a: T, b: T) => boolean;
 
-  constructor(array: T[], equalsFn: (a: any, b: any) => boolean) {
-    this.#array = [...array]
-    this.#originalIndices = array.map((_, i) => i)
-    this.#equalsFn = equalsFn
+  constructor(array: ReadonlyArray<T>, compareFn: (a: T, b: T) => boolean) {
+    this.#trackedArray = [...array];
+    this.#originalItemIndices = array.map((_, i) => i);
+    this.#compareFn = compareFn;
   }
 
   get length() {
-    return this.#array.length
+    return this.#trackedArray.length;
   }
 
-  isRemoval(index: number, newArray: T[]) {
-    if (index >= this.length) {
-      return false
+  isRemovedFromArray(currentIndex: number, updatedArray: ReadonlyArray<T>): boolean {
+    if (currentIndex >= this.length) return false;
+    return updatedArray.every(
+      (updatedItem) => !this.#compareFn(this.#trackedArray[currentIndex], updatedItem)
+    );
+  }
+
+  isUnchangedItem(currentIndex: number, updatedArray: ReadonlyArray<T>): boolean {
+    if (currentIndex >= this.length) return false;
+    return this.#compareFn(this.#trackedArray[currentIndex], updatedArray[currentIndex]);
+  }
+
+  removeItem(currentIndex: number) {
+    const [item] = this.#trackedArray.splice(currentIndex, 1);
+    const [originalIndex] = this.#originalItemIndices.splice(currentIndex, 1);
+    return { op: ArrayDiffOperationType.REMOVE, index: currentIndex, item, originalIndex };
+  }
+
+  addItem(currentItem: T, currentIndex: number) {
+    this.#trackedArray.splice(currentIndex, 0, currentItem);
+    this.#originalItemIndices.splice(currentIndex, 0, -1);
+    return { op: ArrayDiffOperationType.ADD, index: currentIndex, item: currentItem };
+  }
+
+  moveItem(currentItem: T, targetIndex: number) {
+    const sourceIndex = this.#trackedArray.findIndex((item) => this.#compareFn(item, currentItem));
+    if (sourceIndex === -1) throw new Error('Item not found');
+    const [movedItem] = this.#trackedArray.splice(sourceIndex, 1);
+    const [originalIndex] = this.#originalItemIndices.splice(sourceIndex, 1);
+
+    this.#trackedArray.splice(targetIndex, 0, movedItem);
+    this.#originalItemIndices.splice(targetIndex, 0, originalIndex);
+
+    return {
+      op: ArrayDiffOperationType.MOVE,
+      sourceIndex,
+      targetIndex,
+      item: movedItem,
+      originalIndex,
+    };
+  }
+
+  removeRemainingItems(fromIndex: number) {
+    const operations = [];
+    while (this.length > fromIndex) {
+      operations.push(this.removeItem(fromIndex));
     }
-    const item = this.#array[index]
-    const indexInNewArray = newArray.findIndex((newItem) => this.#equalsFn(item, newItem))
-    return indexInNewArray === -1
+    return operations;
   }
 
-  removeItem(index: number) {
-    const operation = {
-      op: ARRAY_DIFF_OP.REMOVE,
-      index,
-      item: this.#array[index],
+  findItemIndex(item: T, fromIndex: number): number {
+    for (let i = fromIndex; i < this.length; i++) {
+      if (this.#compareFn(item, this.#trackedArray[i])) {
+        return i;
+      }
     }
-    this.#array.splice(index, 1)
-    this.#originalIndices.splice(index, 1)
-    return operation
-  }
-
-  isNoop(index: number, newArray: T[]) {
-    if (index >= this.length) {
-      return false
-    }
-    const item = this.#array[index]
-    const newItem = newArray[index]
-    return this.#equalsFn(item, newItem)
-  }
-
-  originalIndexAt(index: number) {
-    return this.#originalIndices[index]
+    return -1;
   }
 
   noopItem(index: number) {
     return {
-      op: ARRAY_DIFF_OP.NOOP,
-      originalIndex: this.originalIndexAt(index),
+      op: ArrayDiffOperationType.NOOP,
       index,
-      item: this.#array[index],
-    }
-  }
-
-  isAddition(item: T, fromIdx: number) {
-    return this.findIndexFrom(item, fromIdx) === -1
-  }
-  findIndexFrom(item: T, fromIdx: number) {
-    for (let i = fromIdx; i < this.length; i++) {
-      if (this.#equalsFn(item, this.#array[i])) {
-        return i
-      }
-    }
-    return -1
-  }
-  addItem(item: T, index: number) {
-    const operation = {
-      op: ARRAY_DIFF_OP.ADD,
-      index,
-      item,
-    }
-    this.#array.splice(index, 0, item)
-    this.#originalIndices.splice(index, 0, -1)
-    return operation
-  }
-
-  moveItem(item: T, toIndex: number) {
-    const fromIndex = this.findIndexFrom(item, toIndex)
-
-    const operation = {
-      op: ARRAY_DIFF_OP.MOVE,
-      originalIndex: this.originalIndexAt(fromIndex),
-      from: fromIndex,
-      index: toIndex,
-      item: this.#array[fromIndex],
-    }
-    const [_item] = this.#array.splice(fromIndex, 1)
-    this.#array.splice(toIndex, 0, _item)
-
-    const [originalIndex] = this.#originalIndices.splice(fromIndex, 1)
-    this.#originalIndices.splice(toIndex, 0, originalIndex)
-
-    return operation
-  }
-
-  removeItemsAfter(index: number) {
-    const operation = []
-
-    while (this.length > index) {
-      operation.push(this.removeItem(index))
-    }
-    return operation
+      item: this.#trackedArray[index],
+      originalIndex: this.#originalItemIndices[index],
+    };
   }
 }
 
-export function arraysDiffSequence(oldArray: any[], newArray: any, equalsFn = (a: any, b: any): boolean => a === b) {
-  const sequence = []
-  const array = new ArrayWithOriginalIndices(oldArray, equalsFn)
-  for (let index = 0; index < newArray.length; index++) {
-    if (array.isRemoval(index, newArray)) {
-      sequence.push(array.removeItem(index))
-      index--
-      continue
-    }
-    if (array.isNoop(index, newArray)) {
-      sequence.push(array.noopItem(index))
-      continue
-    }
-    const item = newArray[index]
+export function generateArrayTransformationSequence<T>(
+  originalArray: ReadonlyArray<T>,
+  updatedArray: ReadonlyArray<T>,
+  compareFn: (a: T, b: T) => boolean = (a, b) => a === b
+) {
+  const transformationSteps = [];
+  const tracker = new IndexedArrayTracker(originalArray, compareFn);
 
-    if (array.isAddition(item, index)) {
-      sequence.push(array.addItem(item, index))
-      continue
+  for (let currentIndex = 0; currentIndex < updatedArray.length; currentIndex++) {
+    const currentItem = updatedArray[currentIndex];
+
+    if (tracker.isRemovedFromArray(currentIndex, updatedArray)) {
+      transformationSteps.push(tracker.removeItem(currentIndex));
+      currentIndex--;
+      continue;
     }
-    sequence.push(array.moveItem(item, index))
+
+    if (tracker.isUnchangedItem(currentIndex, updatedArray)) {
+      transformationSteps.push(tracker.noopItem(currentIndex));
+      continue;
+    }
+
+    if (tracker.findItemIndex(currentItem, currentIndex) === -1) {
+      transformationSteps.push(tracker.addItem(currentItem, currentIndex));
+      continue;
+    }
+
+    transformationSteps.push(tracker.moveItem(currentItem, currentIndex));
   }
 
-  sequence.push(...array.removeItemsAfter(newArray.length))
-
-  return sequence
+  transformationSteps.push(...tracker.removeRemainingItems(updatedArray.length));
+  return transformationSteps;
 }

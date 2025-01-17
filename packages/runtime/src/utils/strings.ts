@@ -1,6 +1,7 @@
-export function isNotEmptyString(str: string): boolean {
-  return str !== ''
+export function isNonEmptyString(value: string): boolean {
+  return value !== '';
 }
-export function isNotBlankOrEmptyString(str: string): boolean {
-  return isNotEmptyString(str.trim())
+
+export function isNonBlankString(value: string): boolean {
+  return isNonEmptyString(value.trim());
 }

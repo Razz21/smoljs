@@ -1,7 +1,8 @@
-import { destroyDOM } from "@/destroy-dom";
-import { mountDOM } from "@/mount-dom";
-import { type VNode, h } from "@/vdom";
-import type { ComponentInstance } from "@/component";
+import type { ComponentInstance } from '@/component';
+import { destroyVNode } from '@/destroy-dom';
+import { h } from '@/h';
+import { mountVNode } from '@/mount-dom';
+import type { VNode } from '@/vdom';
 
 export function createApp<TProps>(RootComponent: ComponentInstance<TProps>, props: TProps = null) {
   let parentEl: Element = null;
@@ -17,25 +18,25 @@ export function createApp<TProps>(RootComponent: ComponentInstance<TProps>, prop
   return {
     mount(_parentEl: Element | null) {
       if (!_parentEl) {
-        console.warn("createApp.mount(): Element does not exists.");
+        console.warn('createApp.mount(): Element does not exists.');
         return;
       }
       if (isMounted) {
-        throw new Error("The application is already mounted");
+        throw new Error('The application is already mounted');
       }
 
       parentEl = _parentEl;
       vdom = h(RootComponent, props);
-      mountDOM(vdom, parentEl);
+      mountVNode(vdom, parentEl);
 
       isMounted = true;
     },
 
     unmount() {
       if (!isMounted) {
-        throw new Error("The application is not mounted");
+        throw new Error('The application is not mounted');
       }
-      destroyDOM(vdom);
+      destroyVNode(vdom);
       reset();
     },
   };
