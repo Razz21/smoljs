@@ -202,9 +202,10 @@ hr {
     transform: translateY(1rem) scale(0.9);
   }
 }
-.todo-item:nth-child(n) {
-  animation-delay: calc(n * var(--delay));
+.todo-item {
+  animation-delay: calc(var(--i) * var(--delay));
 }
+
 .todo-item:last-child {
   border-bottom: none;
 }

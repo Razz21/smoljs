@@ -1,4 +1,4 @@
-import type { Attributes, ChildrenVNode, VNode } from '@smoljs/runtime';
+import type { Attributes, VNode, VNodeChildren } from '@smoljs/runtime';
 
 type MapOnEvents<T> = {
   [K in keyof T as K extends `on${infer Event}` ? `on${Capitalize<Event>}` : K]: T[K];
@@ -21,7 +21,7 @@ declare module '@smoljs/runtime' {
 
 declare global {
   export namespace JSX {
-    type Element = VNode | ChildrenVNode | HTMLElement;
+    type Element = VNode | VNodeChildren | HTMLElement;
     type ElementType =
       | keyof IntrinsicElements
       | ((props: any) => Element)

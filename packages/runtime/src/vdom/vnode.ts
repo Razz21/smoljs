@@ -1,8 +1,8 @@
 import { Component, type ComponentInstance } from '@/component';
 import type { FunctionComponent } from '@/components/types';
 import type { WritableAttributes } from '@/types';
-import { filterNonNullable, isPrototypeOf } from '@/utils';
-import { normalizeChildren } from './helpers';
+import { isPrototypeOf } from '@/utils';
+import { filterChildren, normalizeChildren } from './helpers';
 import type { Attributes, ElementVNodeListeners, Events } from './types';
 
 export const TextVNode: unique symbol = Symbol.for('text');
@@ -37,7 +37,7 @@ export function createVNode(
   shouldNormalize = true
 ): VNode {
   const { ref: rawRef, ...others } = props ?? {};
-  let _children = filterNonNullable(children || []);
+  let _children = filterChildren(children || []);
 
   if (shouldNormalize) {
     _children = normalizeChildren(_children);

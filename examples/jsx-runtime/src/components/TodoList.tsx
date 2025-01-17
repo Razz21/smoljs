@@ -8,7 +8,7 @@ export function TodoList(props: {
 }) {
   return (
     <ul className="todo-items">
-      {props.todos.map((todo) => (
+      {props.todos.map((todo, index) => (
         <TodoElement
           completed={todo.completed}
           key={todo.id}
@@ -16,6 +16,7 @@ export function TodoList(props: {
           onDelete={() => {
             props.onDelete(todo.id);
           }}
+          index={index}
         >
           {todo.value}
         </TodoElement>
