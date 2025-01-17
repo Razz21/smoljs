@@ -27,20 +27,13 @@ function destroyComponentVNode(vnode: VNode): void {
 function destroyElementVNode(vnode: VNode): void {
   const { el, children, listeners } = vnode;
 
-  // Remove event listeners if they exist.
   if (listeners) {
     if (el instanceof Element) {
       removeEventListeners(listeners, el);
     }
-    // TODO: delete operator may have performance negative effects for the V8 hidden classes pattern
-    // https://v8.dev/docs/hidden-classes
-    // delete vnode.listeners
     vnode.listeners = null;
   }
 
-  // Recursively destroy child VNodes.
   children.forEach(destroyVNode);
-
-  // Remove the DOM element.
   el?.remove();
 }
