@@ -109,14 +109,12 @@ function mountFragmentVNode(
 /**
  * Mounts a class component VNode to the DOM.
  */
-function mountComponentVNode(
-  vnode: VNode,
-  parentElement: Element,
-  index?: number
-): void {
+function mountComponentVNode(vnode: VNode, parentElement: Element, index?: number): void {
   const ComponentClass = vnode.type as ComponentInstance;
   const props = vnode.props;
 
+  // TODO pass children/slot content
+  // props['children'] = vnode.children;
   // Initialize and mount the component.
   const component = new ComponentClass(props, vnode.children);
   component.mount(parentElement, index);
