@@ -44,6 +44,7 @@ body {
 
 nav {
   margin-bottom: var(--header-spacing);
+  width: 100%;
 }
 
 nav a {
@@ -98,9 +99,10 @@ button:active {
   justify-content: center;
   align-items: center;
   height: 100%;
+  width: 100%;
 }
 
-.divider {
+hr {
   width: 80%;
   height: 1px;
   background-color: rgba(255, 255, 255, 0.2);

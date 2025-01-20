@@ -1,15 +1,29 @@
-import { RouterLink, RouterRoot, useRouter } from '@smoljs/router';
+import { Router, RouterLink, RouterRoot } from '@smoljs/router';
 import { defineComponent, h, hFragment } from 'smoljs';
 
-function Navigation() {
-  const router = useRouter();
-  return h('nav', {}, [
-    h('h1', {}, [router.currentRoute.path]), //
-    h(RouterLink, { to: '/' }, ['Home']), //
-    h(RouterLink, { to: '/about' }, ['About']), //
-    h('hr', { class: 'divider' }),
-  ]);
-}
+export const Navigation = defineComponent({
+  state() {
+    return {
+      currentRoute: Router.currentRoute.path,
+    };
+  },
+  onMounted() {
+    Router.subscribe((_, nextRoute) => {
+      this.updateState({ currentRoute: nextRoute.path });
+    });
+  },
+  render() {
+    const { currentRoute } = this.state;
+    const isActive = (path: string) => (currentRoute === path ? 'active' : '');
+
+    return h('nav', {}, [
+      h(RouterLink, { to: '/', class: isActive('/') }, ['Home']),
+      h(RouterLink, { to: '/about', class: isActive('/about') }, ['About']),
+      // @ts-expect-error - Not registered route
+      h(RouterLink, { to: '/invalid', class: isActive('/invalid') }, ['Invalid']),
+    ]);
+  },
+});
 
 export const App = defineComponent({
   render() {

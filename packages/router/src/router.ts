@@ -1,76 +1,113 @@
-import type { ComponentInstance } from '@smoljs/runtime';
+import type { ComponentInstance, FunctionComponent } from '@smoljs/runtime';
 
-export type RoutePath = `/${string}`;
+export type RoutePath = string;
 
-export type Route = {
-  path: RoutePath;
-  component: ComponentInstance<any, any>;
+export type Route<T extends RoutePath = RoutePath> = {
+  path: T;
+  component: ComponentInstance | FunctionComponent<any>;
 };
+export type RouterOptions<TPath extends RoutePath> = { routes: Route<TPath>[] };
 
-export type RouterOptions = {
-  routes: Route[];
-};
+class RouterClass<TPath extends RoutePath = RoutePath> {
+  private static instance: RouterClass<any>;
+  private _routes: Route<TPath>[] = [];
+  private _currentRoute: Route<TPath>;
+  private _historyListener: () => void;
+  private _subscriptions: Set<
+    (prevRoute: Route<TPath> | undefined, currentRoute: Route<TPath>) => void
+  > = new Set();
 
-export type CurrentRoute = Route;
+  private constructor() {}
 
-export class Router {
-  static _routes: Route[];
-  static _currentRoute: CurrentRoute;
-  static _onRouteChange: (prevRoute: Route | undefined, currentRoute: Route) => void;
-
-  static create(options: RouterOptions) {
-    Router._routes = options.routes;
-    return Router;
+  public static getInstance<TPath extends RoutePath>(): RouterClass<TPath> {
+    if (!RouterClass.instance) {
+      RouterClass.instance = new RouterClass<TPath>();
+    }
+    return RouterClass.instance as RouterClass<TPath>;
   }
 
-  static _renderRoute(path: string) {
-    const route = Router._routes.find((route) => route.path === path);
+  get routes(): Route<TPath>[] {
+    return this._routes;
+  }
+
+  create<T extends TPath>(options: RouterOptions<T>): RouterClass<T> {
+    this._routes = options.routes;
+    return this as any;
+  }
+
+  /**
+   * Renders the route based on the given path.
+   * Finds the route matching the path and updates the current route.
+   * Notifies subscribers about the route change.
+   * @param path - The path to render.
+   * @throws Will throw an error if the route is not found.
+   */
+  private _renderRoute(path: string) {
+    const route = this._routes.find((route) => route.path === path);
     if (!route?.component) {
-      // Handle 404 - Page Not Found
       throw new Error('404: Page not found');
     }
-    if (route.path === Router._currentRoute?.path) {
+    if (route.path === this._currentRoute?.path) {
       console.warn('Navigation to the same path is not allowed');
       return;
     }
 
-    const prev = Router._currentRoute;
-    Router._currentRoute = route;
-    Router._onRouteChange?.(prev, Router._currentRoute);
+    const prevRoute = this._currentRoute;
+    this._currentRoute = route;
+
+    this._subscriptions.forEach((callback) => callback(prevRoute, this._currentRoute));
   }
 
-  static push(path: string) {
+  push(path: string) {
     window.history.pushState({}, '', path);
-    Router._renderRoute(path);
+    this._renderRoute(path);
   }
 
-  static replace(path: string) {
+  replace(path: string) {
     window.history.replaceState({}, '', path);
-    Router._renderRoute(path);
+    this._renderRoute(path);
   }
 
-  static init() {
-    // Initial route rendering
-    Router._renderRoute(window.location.pathname);
+  /**
+   * Initializes the router by rendering the current path and setting up the history listener.
+   * @returns The instance of the router.
+   */
+  init(): RouterClass<TPath> {
+    this._renderRoute(window.location.pathname);
+
+    // Subscribe to popstate event for history changes (back/forward buttons)
+    this._historyListener = () => {
+      this._renderRoute(window.location.pathname);
+    };
+    window.addEventListener('popstate', this._historyListener);
+    return this;
   }
 
-  static onRouteChange(cb: (prevRoute: Route | undefined, currentRoute: Route) => void) {
-    Router._onRouteChange = cb;
+  subscribe(callback: (prevRoute: Route<TPath> | undefined, currentRoute: Route<TPath>) => void) {
+    this._subscriptions.add(callback);
+
+    return () => {
+      this._subscriptions.delete(callback);
+    };
   }
 
-  static get routes() {
-    return Router._routes;
+  cleanup() {
+    window.removeEventListener('popstate', this._historyListener);
   }
 
-  static get currentRoute() {
-    return Router._currentRoute;
+  get currentRoute() {
+    return this._currentRoute;
   }
 }
 
-export function useRouter() {
-  return {
-    push: Router.push,
-    replace: Router.replace,
-    currentRoute: Router.currentRoute,
-  };
+export const Router = RouterClass.getInstance();
+
+export interface Register {
+  // router
 }
+
+export type RegisteredRouter = Register extends {
+  router: infer TRouter extends RouterClass;
+}
+  ? TRouter
+  : RouterClass;

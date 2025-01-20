@@ -8,7 +8,7 @@ export const RouterRoot = defineComponent({
     };
   },
   render() {
-    Router.onRouteChange((_, nextRoute) => {
+    Router.subscribe((_, nextRoute) => {
       this.updateState({ currentRoute: nextRoute.path });
     });
     const component = Router.currentRoute.component;

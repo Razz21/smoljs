@@ -1,21 +1,33 @@
 import { type Route, Router } from '@smoljs/router';
-import { createApp } from 'smoljs';
+import { createApp, defineComponent, h } from 'smoljs';
 import { App } from './App';
 import './style.css';
-import AboutPage from './pages/About';
-import Home from './pages/Home';
 
-const routes: Route[] = [
+const Home = defineComponent({
+  render: () => h('div', { class: 'page' }, [h('h1', null, ['Home Page'])]),
+});
+
+function About() {
+  return h('div', { class: 'page' }, [h('h1', null, ['About Page'])]);
+}
+
+const routes = [
   {
     path: '/',
     component: Home,
   },
   {
     path: '/about',
-    component: AboutPage,
+    component: About,
   },
-];
+] satisfies Route[];
 
-Router.create({ routes }).init();
+const router = Router.create({ routes }).init();
+
+declare module '@smoljs/router' {
+  interface Register {
+    router: typeof router
+  }
+}
 
 createApp(App).mount(document.querySelector('#app'));
