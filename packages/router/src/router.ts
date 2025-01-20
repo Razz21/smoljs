@@ -6,108 +6,94 @@ export type Route<T extends RoutePath = RoutePath> = {
   path: T;
   component: ComponentInstance | FunctionComponent<any>;
 };
+
 export type RouterOptions<TPath extends RoutePath> = { routes: Route<TPath>[] };
 
-class RouterClass<TPath extends RoutePath = RoutePath> {
-  private static instance: RouterClass<any>;
+// Core Router class
+export class RouterClass<TPath extends RoutePath> {
   private _routes: Route<TPath>[] = [];
-  private _currentRoute: Route<TPath>;
-  private _historyListener: () => void;
-  private _subscriptions: Set<
+  private _currentRoute?: Route<TPath>;
+  private _subscriptions = new Set<
     (prevRoute: Route<TPath> | undefined, currentRoute: Route<TPath>) => void
-  > = new Set();
+  >();
 
-  private constructor() {}
-
-  public static getInstance<TPath extends RoutePath>(): RouterClass<TPath> {
-    if (!RouterClass.instance) {
-      RouterClass.instance = new RouterClass<TPath>();
-    }
-    return RouterClass.instance as RouterClass<TPath>;
+  constructor(options: RouterOptions<TPath>) {
+    this._routes = options.routes;
   }
 
   get routes(): Route<TPath>[] {
     return this._routes;
   }
 
-  create<T extends TPath>(options: RouterOptions<T>): RouterClass<T> {
-    this._routes = options.routes;
-    return this as any;
+  get currentRoute(): Route<TPath> | undefined {
+    return this._currentRoute;
   }
 
-  /**
-   * Renders the route based on the given path.
-   * Finds the route matching the path and updates the current route.
-   * Notifies subscribers about the route change.
-   * @param path - The path to render.
-   * @throws Will throw an error if the route is not found.
-   */
-  private _renderRoute(path: string) {
-    const route = this._routes.find((route) => route.path === path);
-    if (!route?.component) {
-      throw new Error('404: Page not found');
-    }
-    if (route.path === this._currentRoute?.path) {
-      console.warn('Navigation to the same path is not allowed');
-      return;
-    }
+  init(): void {
+    this._renderRoute(window.location.pathname);
 
-    const prevRoute = this._currentRoute;
-    this._currentRoute = route;
-
-    this._subscriptions.forEach((callback) => callback(prevRoute, this._currentRoute));
+    window.addEventListener('popstate', () => {
+      this._renderRoute(window.location.pathname);
+    });
   }
 
-  push(path: string) {
+  push(path: TPath): void {
     window.history.pushState({}, '', path);
     this._renderRoute(path);
   }
 
-  replace(path: string) {
+  replace(path: TPath): void {
     window.history.replaceState({}, '', path);
     this._renderRoute(path);
   }
 
-  /**
-   * Initializes the router by rendering the current path and setting up the history listener.
-   * @returns The instance of the router.
-   */
-  init(): RouterClass<TPath> {
-    this._renderRoute(window.location.pathname);
-
-    // Subscribe to popstate event for history changes (back/forward buttons)
-    this._historyListener = () => {
-      this._renderRoute(window.location.pathname);
-    };
-    window.addEventListener('popstate', this._historyListener);
-    return this;
-  }
-
-  subscribe(callback: (prevRoute: Route<TPath> | undefined, currentRoute: Route<TPath>) => void) {
+  subscribe(
+    callback: (prevRoute: Route<TPath> | undefined, currentRoute: Route<TPath>) => void
+  ): () => void {
     this._subscriptions.add(callback);
-
     return () => {
       this._subscriptions.delete(callback);
     };
   }
 
-  cleanup() {
-    window.removeEventListener('popstate', this._historyListener);
-  }
-
-  get currentRoute() {
-    return this._currentRoute;
+  private _renderRoute(path: string): void {
+    const route = this._routes.find((route) => route.path === path);
+    if (!route) {
+      throw new Error(`Route not found: ${path}`);
+    }
+    const prevRoute = this._currentRoute;
+    this._currentRoute = route;
+    this._subscriptions.forEach((callback) => callback(prevRoute, route));
   }
 }
 
-export const Router = RouterClass.getInstance();
+// Global router instance
+let activeRouter: RouterClass<any>;
 
+export function useRouter<TPath extends RoutePath>(): RouterClass<TPath> {
+  if (!activeRouter) {
+    throw new Error('Router is not initialized. Please create a router instance first.');
+  }
+  return activeRouter as RouterClass<TPath>;
+}
+
+// Factory function to create the router
+export function createRouter<TPath extends RoutePath>(
+  options: RouterOptions<TPath>
+): RouterClass<TPath> {
+  const router = new RouterClass<TPath>(options);
+  activeRouter = router;
+  return router;
+}
+
+// Type for manual declaration merging
 export interface Register {
-  // router
+  // router 
 }
+export type AnyRouter = RouterClass<RoutePath>;
 
 export type RegisteredRouter = Register extends {
-  router: infer TRouter extends RouterClass;
+  router: infer TRouter extends AnyRouter;
 }
   ? TRouter
-  : RouterClass;
+  : AnyRouter;

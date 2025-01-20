@@ -1,4 +1,4 @@
-import { type Route, Router } from '@smoljs/router';
+import { type Route, RouterClass, RouterOptions, createRouter } from '@smoljs/router';
 import { createApp, defineComponent, h } from 'smoljs';
 import { App } from './App';
 import './style.css';
@@ -20,13 +20,14 @@ const routes = [
     path: '/about',
     component: About,
   },
-] satisfies Route[];
+] as const satisfies Route[];
 
-const router = Router.create({ routes }).init();
+const router = createRouter({ routes });
+router.init();
 
 declare module '@smoljs/router' {
   interface Register {
-    router: typeof router
+    router: typeof router;
   }
 }
 
