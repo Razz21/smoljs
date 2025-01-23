@@ -7,13 +7,24 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.min.js"
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.min.js"
+      },
+      "default": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
     },
     "./jsx-runtime": {
-      "import": "./dist/jsx-runtime.js",
-      "require": "./dist/jsx-runtime.min.js",
-      "types": "./dist/jsx-runtime.d.ts"
+      "require": {
+        "types": "./dist/jsx-runtime.d.ts",
+        "default": "./dist/jsx-runtime.min.js"
+      },
+      "default": {
+        "types": "./dist/jsx-runtime.d.ts",
+        "default": "./dist/jsx-runtime.js"
+      }
     }
   },
   "files": ["dist"],
@@ -22,10 +33,7 @@
     "build": "vite build"
   },
   "devDependencies": {
-    "vite": "^4.4.5",
-    "vite-plugin-dts": "^4.5.0",
     "@smoljs/runtime": "workspace:*"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }

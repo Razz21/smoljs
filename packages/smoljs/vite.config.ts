@@ -12,7 +12,7 @@ export default defineConfig({
     },
 
     rollupOptions: {
-      preserveEntrySignatures: "allow-extension",
+      preserveEntrySignatures: 'allow-extension',
       external: ['@smoljs/runtime'],
       output: {
         globals: {
@@ -23,4 +23,5 @@ export default defineConfig({
   },
 
   plugins: [dts({})],
+  test: {},
 });
