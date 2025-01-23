@@ -21,7 +21,6 @@ export function TodoElement(props: {
         <input
           hidden
           type="checkbox"
-          checked={props.completed || undefined}
           onChange={(event) =>
             props.onChange({ completed: (event.target as HTMLInputElement).checked })
           }

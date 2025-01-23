@@ -2,15 +2,7 @@ import { destroyVNode } from '@/destroy-dom';
 import { mountVNode } from '@/mount-dom';
 import { patchDOM } from '@/patch-dom';
 import { extractChildNodes } from '@/utils';
-import {
-  FragmentVNode,
-  type VNode,
-  type VNodeChildren,
-  isClassComponent,
-  isElementVNode,
-  isFragmentVNode,
-  isVNode,
-} from '@/vdom';
+import { type VNode, isClassComponent, isElementVNode, isFragmentVNode } from '@/vdom';
 import equals from 'fast-deep-equal';
 
 export abstract class Component<TProps, TState> {
@@ -20,7 +12,7 @@ export abstract class Component<TProps, TState> {
 
   state: Readonly<TState>;
   props: Readonly<TProps>;
-  children: VNodeChildren[];
+  children: VNode[];
 
   #refs: Record<string, Element> = {};
 
@@ -45,7 +37,7 @@ export abstract class Component<TProps, TState> {
   }
 
   get offset(): number {
-    return this.#vdom.type === FragmentVNode
+    return isFragmentVNode(this.#vdom)
       ? Array.from(this.#hostEl.childNodes).indexOf(this.firstElement)
       : 0;
   }
@@ -106,7 +98,7 @@ export abstract class Component<TProps, TState> {
   #setRefs() {
     this.#setRefForVNode(this.#vdom);
     this.children.forEach((child) => {
-      if (isVNode(child) && child.ref) {
+      if (child.ref) {
         this.#setRefForVNode(child);
       }
     });

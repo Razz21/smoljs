@@ -54,7 +54,6 @@ export const App = defineComponent({
       }));
     },
     onChange(id: Todo['id'], value: Partial<Pick<Todo, 'value' | 'completed'>>) {
-      console.log('onChange', id, value);
       this.updateState((prevState) => {
         const indexToChange = prevState.todos.findIndex((todo) => todo.id === id);
         if (indexToChange === -1) {

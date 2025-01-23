@@ -1,9 +1,4 @@
-import {
-  applyAttribute,
-  applyStyle,
-  removeAttribute,
-  removeStyle,
-} from '@/attributes';
+import { applyAttribute, applyStyle, removeAttribute, removeStyle } from '@/attributes';
 import type { Component } from '@/component';
 import { destroyVNode } from '@/destroy-dom';
 import { addEventListener } from '@/events';
@@ -52,15 +47,11 @@ export function patchDOM(
 
 function patchText(oldVdom: VNode, newVdom: VNode) {
   const { el } = oldVdom;
-  const [oldText] = oldVdom.children;
-  const [newText] = newVdom.children;
+  const { nodeValue: oldTNodeValue } = oldVdom.props;
+  const { nodeValue: newNodeValue } = newVdom.props;
 
-  if (typeof oldText !== 'string' || typeof newText !== 'string') {
-    throw new Error('Text node children must be strings');
-  }
-
-  if (oldText !== newText) {
-    el.nodeValue = newText;
+  if (oldTNodeValue !== newNodeValue) {
+    el.nodeValue = newNodeValue;
   }
 }
 
@@ -78,8 +69,8 @@ function patchElement(oldVdom: VNode, newVdom: VNode, hostComponent?: Component<
 function patchAttrs(el: Element, oldAttrs: Record<string, any>, newAttrs: Record<string, any>) {
   const { added, removed, updated } = objectsDiff(oldAttrs, newAttrs);
 
-  removed.forEach(attr => removeAttribute(el, attr));
-  [...added, ...updated].forEach(attr => applyAttribute(el, attr, newAttrs[attr]));
+  removed.forEach((attr) => removeAttribute(el, attr));
+  [...added, ...updated].forEach((attr) => applyAttribute(el, attr, newAttrs[attr]));
 }
 
 function patchClasses(el: Element, oldClass: string | string[], newClass: string | string[]) {
@@ -98,8 +89,8 @@ function patchStyles(
 ) {
   const { added, removed, updated } = objectsDiff(oldStyle, newStyle);
 
-  removed.forEach(style => removeStyle(el, style));
-  [...added, ...updated].forEach(style => applyStyle(el, style, newStyle[style]));
+  removed.forEach((style) => removeStyle(el, style));
+  [...added, ...updated].forEach((style) => applyStyle(el, style, newStyle[style]));
 }
 
 function patchEvents(
@@ -111,18 +102,13 @@ function patchEvents(
 ) {
   const { added, removed, updated } = objectsDiff(oldEvents, newEvents);
 
-  [...removed, ...updated].forEach(eventName =>
+  [...removed, ...updated].forEach((eventName) =>
     el.removeEventListener(eventName, oldListeners[eventName])
   );
 
   const newListeners: Record<string, any> = {};
-  [...added, ...updated].forEach(eventName => {
-    newListeners[eventName] = addEventListener(
-      eventName,
-      newEvents[eventName],
-      el,
-      hostComponent
-    );
+  [...added, ...updated].forEach((eventName) => {
+    newListeners[eventName] = addEventListener(eventName, newEvents[eventName], el, hostComponent);
   });
 
   return newListeners;

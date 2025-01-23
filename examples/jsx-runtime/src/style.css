@@ -237,7 +237,7 @@ hr {
 .todo-checkbox:active .checkmark {
   transform: scale(0.9);
 }
-.todo-checkbox input:checked ~ .checkmark {
+.todo-item.completed .checkmark {
   background-color: var(--success-color);
   border-color: var(--success-color);
   box-shadow: 0 0 15px var(--success-glow);
@@ -256,7 +256,7 @@ hr {
   top: 50%;
   left: 50%;
 }
-.todo-checkbox input:checked ~ .checkmark:after {
+.todo-item.completed .checkmark:after {
   display: block;
 }
 .todo-checkbox .checkmark:after {

@@ -17,7 +17,7 @@ const GridItemFC = (props: any) => {
 };
 
 function arrItems(items: number) {
-  return new Array(items).fill(null).map((_) => Math.random().toPrecision(2));
+  return new Array(items).fill(null).map(() => Math.random().toPrecision(2));
 }
 const selectItems = [
   { value: 10, label: "C'mon" },
@@ -28,13 +28,53 @@ const selectItems = [
   { value: 5000, label: 'Cryogenic territory' },
   { value: 10000, label: 'Absolute zero' },
 ];
-export const Grid = defineComponent({
+
+const GridList = defineComponent({
   state() {
     return {
       elements: [] as string[],
       rAF: undefined as number | undefined,
+    };
+  },
+  render({ GridItem }: { itemsToRender: number; GridItem: any }) {
+    return h(
+      'div',
+      { class: 'grid', style: {} },
+      this.state.elements.map((el, _index) => {
+        return h(GridItem, { key: _index, style: { opacity: el } });
+      })
+    );
+  },
+  onMounted() {
+    let rAF: number | undefined;
+
+    const loopRaF = () => {
+      rAF = undefined;
+      const elements = arrItems(this.props.itemsToRender);
+
+      this.updateState({ elements, rAF });
+      startAnim();
+    };
+    const startAnim = () => {
+      if (!this.state.rAF) {
+        rAF = requestAnimationFrame(loopRaF);
+      }
+    };
+    startAnim();
+  },
+  onUnmounted() {
+    if (this.state.rAF) {
+      cancelAnimationFrame(this.state.rAF);
+      this.updateState({ rAF: undefined });
+    }
+  },
+});
+
+export const Grid = defineComponent({
+  state() {
+    return {
       itemsToRender: 10,
-      isFnComponent: false,
+      isFnComponent: true,
     };
   },
   methods: {
@@ -56,7 +96,7 @@ export const Grid = defineComponent({
     const state = this.state;
     const onChange = this.onChange;
     const toggleComponentType = this.toggleComponentType;
-    const ComponentToRender = state.isFnComponent ? GridItemFC : GridItemClass;
+    const GridItem = state.isFnComponent ? GridItemFC : GridItemClass;
 
     return hFragment([
       h('fieldset', { class: 'element-to-move' }, [
@@ -84,37 +124,10 @@ export const Grid = defineComponent({
           ]);
         }),
       ]),
-      h(
-        'div',
-        { class: 'grid', style: {} },
-        state.elements.map((el, index) => {
-          return h(ComponentToRender, { key: index, style: { opacity: el } });
-        })
-      ),
+      h(GridList, {
+        itemsToRender: state.itemsToRender,
+        GridItem,
+      }),
     ]);
-  },
-
-  onMounted() {
-    let rAF: number | undefined;
-
-    const loopRaF = () => {
-      rAF = undefined;
-      const elements = arrItems(this.state.itemsToRender);
-
-      this.updateState({ elements, rAF });
-      startAnim();
-    };
-    const startAnim = () => {
-      if (!this.state.rAF) {
-        rAF = requestAnimationFrame(loopRaF);
-      }
-    };
-    startAnim();
-  },
-  onUnmounted() {
-    if (this.state.rAF) {
-      cancelAnimationFrame(this.state.rAF);
-      this.updateState({ rAF: undefined });
-    }
   },
 });
