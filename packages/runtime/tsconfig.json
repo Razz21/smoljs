@@ -26,6 +26,6 @@
     },
     "types": ["vitest"]
   },
-  "include": ["src"],
+  "include": ["src", "tests"],
   "exclude": ["dist", "node_modules"]
 }
