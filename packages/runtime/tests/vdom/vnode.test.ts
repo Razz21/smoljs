@@ -97,7 +97,7 @@ describe('vdom/vnode', () => {
   ])('isFragmentVNode(%o) should be %s', (value, expected) => {
     expect(isFragmentVNode(value)).toBe(expected);
   });
-  
+
   it.each([
     [createVNode('div'), true],
     [createVNode(defineComponent({ render() {} })), false],

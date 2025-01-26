@@ -23,7 +23,6 @@ export default defineConfig({
       },
     ],
     coverage: {
-      all: true,
       enabled: true,
       provider: 'v8',
       include: ['packages/**/src/**/*.{ts,js}'],

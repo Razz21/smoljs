@@ -34,7 +34,8 @@ export function defineComponent<TProps, TState, TMethods>({
   }
 
   for (const methodName in methods) {
-    if (hasOwnProperty(BaseComponent, methodName)) {
+    console.log(methodName, hasOwnProperty(BaseComponent, 'onMounted'));
+    if (hasOwnProperty(BaseComponent, methodName) || methodName in BaseComponent.prototype) {
       throw new Error(`Method "${methodName}()" already exists in the component. Can't override`);
     }
     (BaseComponent.prototype as any)[methodName] = methods[methodName];
