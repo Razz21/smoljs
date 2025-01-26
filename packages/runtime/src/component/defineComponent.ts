@@ -1,6 +1,6 @@
 import { hasOwnProperty, noOp } from '@/utils';
-import { Component } from '@/component';
 import type { VNode } from '@/vdom';
+import { Component } from './component';
 import type { ComponentInstance, DefineComponentArgs } from './types';
 
 export function defineComponent<TProps, TState, TMethods>({

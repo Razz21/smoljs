@@ -54,6 +54,9 @@ export function createVNode(
 export function createTextVNode(value: string) {
   return createVNode(TextVNode, { nodeValue: value });
 }
+export function createFragmentVNode(children: VNodeChildren[]): VNode {
+  return createVNode(FragmentVNode, null, children);
+}
 
 export function isVNode(value?: any): value is VNode {
   return value ? value?._isVNode === true : false;
