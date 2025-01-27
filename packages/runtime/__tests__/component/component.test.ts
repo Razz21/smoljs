@@ -1,5 +1,3 @@
-// @vitest-environment happy-dom
-
 import { Component } from '@/component/component';
 import { createFragmentVNode, createVNode } from '@/vdom';
 import { describe, expect, it, vi } from 'vitest';

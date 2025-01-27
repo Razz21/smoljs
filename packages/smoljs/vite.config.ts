@@ -23,5 +23,4 @@ export default defineConfig({
   },
 
   plugins: [dts({})],
-  test: {},
 });
