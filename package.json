@@ -8,6 +8,7 @@
     "build:packages": "pnpm --filter \"./packages/*\" build",
     "lint": "biome ci .",
     "lint:fix": "biome lint --apply .",
+    "prepack": "pnpm build:packages",
     "prepare": "husky",
     "test": "vitest",
     "test:run": "vitest run"
