@@ -2,6 +2,7 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
+import pkg from './package.json';
 
 export default defineConfig({
   resolve: {
@@ -14,11 +15,12 @@ export default defineConfig({
     sourcemap: true,
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      name: 'Runtime',
+      name: pkg.name,
       fileName: (format) => `index.${format === 'es' ? 'js' : 'min.js'}`,
     },
   },
-
   plugins: [dts({ rollupTypes: true })],
-  test: {},
+  test: {
+    environment: 'happy-dom',
+  },
 });
