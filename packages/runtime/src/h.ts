@@ -4,10 +4,10 @@ import type { WritableAttributes } from '@/types';
 import {
   type Attributes,
   type ElementTag,
-  FragmentVNode,
   type VNode,
   type VNodeChildren,
   type VNodeProps,
+  createFragmentVNode,
   createVNode,
   isClassComponent,
   isFunctionComponent,
@@ -47,5 +47,5 @@ export function h(type: any, props?: any, children?: VNodeChildren[] | null) {
 }
 
 export function hFragment(vNodes: VNodeChildren[]): VNode {
-  return createVNode(FragmentVNode, null, vNodes);
+  return createFragmentVNode(vNodes);
 }

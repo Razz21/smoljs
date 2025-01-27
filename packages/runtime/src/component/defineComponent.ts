@@ -1,6 +1,6 @@
 import { hasOwnProperty, noOp } from '@/utils';
-import { Component } from '@/component';
 import type { VNode } from '@/vdom';
+import { Component } from './component';
 import type { ComponentInstance, DefineComponentArgs } from './types';
 
 export function defineComponent<TProps, TState, TMethods>({
@@ -34,7 +34,7 @@ export function defineComponent<TProps, TState, TMethods>({
   }
 
   for (const methodName in methods) {
-    if (hasOwnProperty(BaseComponent, methodName)) {
+    if (hasOwnProperty(BaseComponent, methodName) || methodName in BaseComponent.prototype) {
       throw new Error(`Method "${methodName}()" already exists in the component. Can't override`);
     }
     (BaseComponent.prototype as any)[methodName] = methods[methodName];

@@ -1,7 +1,7 @@
-export function isNonEmptyString(value: string): boolean {
-  return value !== '';
+export function isNonBlankString(value: string): boolean {
+  return value.trim() !== '';
 }
 
-export function isNonBlankString(value: string): boolean {
-  return isNonEmptyString(value.trim());
+export function kebabize(str: string) {
+  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 }

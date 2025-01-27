@@ -114,7 +114,7 @@ function mountComponentVNode(vnode: VNode, parentElement: Element, index?: numbe
 /**
  * Inserts a node into the parent element at the specified index.
  */
-export function insertNode(node: Node, parentElement: Element, index?: number): void {
+function insertNode(node: Node, parentElement: Element, index?: number): void {
   if (index == null) {
     parentElement.append(node);
     return;

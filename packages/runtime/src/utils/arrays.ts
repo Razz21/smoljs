@@ -21,6 +21,14 @@ export const ArrayDiffOperationType = {
   NOOP: 'noop',
 } as const;
 
+type ArrayOperation<T> = {
+  op: (typeof ArrayDiffOperationType)[keyof typeof ArrayDiffOperationType];
+  index: number;
+  from?: number;
+  item: T;
+  originalIndex?: number;
+};
+
 export class IndexedArrayTracker<T> {
   #trackedArray: T[];
   #originalItemIndices: number[];
@@ -48,37 +56,46 @@ export class IndexedArrayTracker<T> {
     return this.#compareFn(this.#trackedArray[currentIndex], updatedArray[currentIndex]);
   }
 
-  removeItem(currentIndex: number) {
+  removeItem(currentIndex: number): ArrayOperation<T> {
     const [item] = this.#trackedArray.splice(currentIndex, 1);
     const [originalIndex] = this.#originalItemIndices.splice(currentIndex, 1);
-    return { op: ArrayDiffOperationType.REMOVE, index: currentIndex, item, originalIndex };
+    return {
+      op: ArrayDiffOperationType.REMOVE,
+      index: currentIndex,
+      item,
+      originalIndex,
+    };
   }
 
-  addItem(currentItem: T, currentIndex: number) {
+  addItem(currentItem: T, currentIndex: number): ArrayOperation<T> {
     this.#trackedArray.splice(currentIndex, 0, currentItem);
     this.#originalItemIndices.splice(currentIndex, 0, -1);
-    return { op: ArrayDiffOperationType.ADD, index: currentIndex, item: currentItem };
+    return {
+      op: ArrayDiffOperationType.ADD,
+      index: currentIndex,
+      item: currentItem,
+    };
   }
 
-  moveItem(currentItem: T, targetIndex: number) {
-    const sourceIndex = this.#trackedArray.findIndex((item) => this.#compareFn(item, currentItem));
-    if (sourceIndex === -1) throw new Error('Item not found');
-    const [movedItem] = this.#trackedArray.splice(sourceIndex, 1);
-    const [originalIndex] = this.#originalItemIndices.splice(sourceIndex, 1);
+  moveItem(currentItem: T, index: number): ArrayOperation<T> {
+    const fromIndex = this.#trackedArray.findIndex((item) => this.#compareFn(item, currentItem));
+    if (fromIndex === -1) throw new Error('Item not found');
+    const [movedItem] = this.#trackedArray.splice(fromIndex, 1);
+    const [originalIndex] = this.#originalItemIndices.splice(fromIndex, 1);
 
-    this.#trackedArray.splice(targetIndex, 0, movedItem);
-    this.#originalItemIndices.splice(targetIndex, 0, originalIndex);
+    this.#trackedArray.splice(index, 0, movedItem);
+    this.#originalItemIndices.splice(index, 0, originalIndex);
 
     return {
       op: ArrayDiffOperationType.MOVE,
-      sourceIndex,
-      targetIndex,
+      from: fromIndex,
+      index,
       item: movedItem,
       originalIndex,
     };
   }
 
-  removeRemainingItems(fromIndex: number) {
+  removeRemainingItems(fromIndex: number): ArrayOperation<T>[] {
     const operations = [];
     while (this.length > fromIndex) {
       operations.push(this.removeItem(fromIndex));
@@ -102,7 +119,7 @@ export class IndexedArrayTracker<T> {
     return -1;
   }
 
-  noopItem(index: number) {
+  noopItem(index: number): ArrayOperation<T> {
     return {
       op: ArrayDiffOperationType.NOOP,
       index,
@@ -117,7 +134,7 @@ export function generateArrayTransformationSequence<T>(
   updatedArray: ReadonlyArray<T>,
   compareFn: (a: T, b: T) => boolean = (a, b) => a === b
 ) {
-  const transformationSteps = [];
+  const transformationSteps: ArrayOperation<T>[] = [];
   const tracker = new IndexedArrayTracker(originalArray, compareFn);
 
   for (let currentIndex = 0; currentIndex < updatedArray.length; currentIndex++) {

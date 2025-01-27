@@ -1,9 +1,12 @@
 import type { Entries } from '@/types';
+import { isNonBlankString, kebabize } from './utils';
 
-type HtmlAttributes = {
-  class: string | string[];
-  style: Record<string, string>;
-} & HtmlAttribute;
+type HtmlAttributes = Partial<
+  {
+    class: string | string[];
+    style: Record<string, string>;
+  } & HtmlAttribute
+>;
 
 export type GenericHtmlElement = Element & Record<string, any>;
 
@@ -35,7 +38,7 @@ export function applyClass(element: GenericHtmlElement, className: string | stri
   if (typeof className === 'string') {
     element.className = className;
   } else if (Array.isArray(className)) {
-    element.classList.add(...className);
+    element.classList.add(...className.filter(isNonBlankString));
   }
 }
 
@@ -44,22 +47,24 @@ export function applyStyle(
   propertyName: string,
   propertyValue: string
 ): void {
-  element.style.setProperty(propertyName, propertyValue);
+  element.style.setProperty(kebabize(propertyName), propertyValue);
 }
 
 export function removeStyle(element: GenericHtmlElement, propertyName: string): void {
-  element.style.removeProperty(propertyName);
+  element.style.removeProperty(kebabize(propertyName));
 }
 
 export function applyAttribute<TAttr extends keyof HtmlAttribute>(
   element: GenericHtmlElement,
   attributeName: TAttr,
-  attributeValue: HtmlAttribute[TAttr] | null
+  attributeValue: any | null
 ): void {
   if (attributeValue == null) {
-    element.removeAttribute(attributeName);
+    removeAttribute(element, attributeName);
+  } else if (attributeName.startsWith('data-')) {
+    element.setAttribute(attributeName, attributeValue);
   } else {
-    element.setAttribute(attributeName, attributeValue as string);
+    element[attributeName] = attributeValue;
   }
 }
 

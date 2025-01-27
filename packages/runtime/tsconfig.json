@@ -23,8 +23,9 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "types": ["vitest"]
   },
-  "include": ["src"],
+  "include": ["src", "__tests__"],
   "exclude": ["dist", "node_modules"]
 }
