@@ -4,6 +4,9 @@
   "description": "Yet Another Smol JavaScript Framework",
   "author": "@Razz21",
   "license": "MIT",
+  "files": [
+    "packages"
+  ],
   "scripts": {
     "build:packages": "pnpm --filter \"./packages/*\" build",
     "lint": "biome ci .",
