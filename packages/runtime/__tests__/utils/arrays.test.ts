@@ -48,7 +48,7 @@ describe('utils/arrays', () => {
         originalArray: [1, 2, 3],
         updatedArray: [3, 1, 2],
         expected: [
-          { op: 'move', sourceIndex: 2, targetIndex: 0, item: 3, originalIndex: 2 },
+          { op: 'move', from: 2, index: 0, item: 3, originalIndex: 2 },
           { op: 'noop', index: 1, item: 1, originalIndex: 0 },
           { op: 'noop', index: 2, item: 2, originalIndex: 1 },
         ],
@@ -58,7 +58,7 @@ describe('utils/arrays', () => {
         originalArray: [1, 2, 3],
         updatedArray: [3, 1, 4],
         expected: [
-          { op: 'move', sourceIndex: 2, targetIndex: 0, item: 3, originalIndex: 2 },
+          { op: 'move', from: 2, index: 0, item: 3, originalIndex: 2 },
           { op: 'noop', index: 1, item: 1, originalIndex: 0 },
           { op: 'remove', index: 2, item: 2, originalIndex: 1 },
           { op: 'add', index: 2, item: 4 },
