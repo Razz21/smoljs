@@ -1,31 +1,22 @@
-import type { ComponentInstance, FunctionComponent } from '@smoljs/runtime';
+import type { GeneratePathsFromRoutes, ResolvedRoute, Route, RouterOptions } from './types';
 
-export type RoutePath = string;
-
-export type Route<T extends RoutePath = RoutePath> = {
-  path: T;
-  component: ComponentInstance | FunctionComponent<any>;
-};
-
-export type RouterOptions<TPath extends RoutePath> = { routes: Route<TPath>[] };
-
-// Core Router class
-export class RouterClass<TPath extends RoutePath> {
-  private _routes: Route<TPath>[] = [];
-  private _currentRoute?: Route<TPath>;
+// Core Router Class
+export class RouterClass<TRoutes extends Route[], TPath extends GeneratePathsFromRoutes<TRoutes>> {
+  private _routes: TRoutes = [] as TRoutes;
+  private _currentRoute?: ResolvedRoute<string>;
   private _subscriptions = new Set<
-    (prevRoute: Route<TPath> | undefined, currentRoute: Route<TPath>) => void
+    (prevRoute: ResolvedRoute<string> | undefined, currentRoute: ResolvedRoute<string>) => void
   >();
 
-  constructor(options: RouterOptions<TPath>) {
+  constructor(options: RouterOptions<TRoutes>) {
     this._routes = options.routes;
   }
 
-  get routes(): Route<TPath>[] {
+  get routes(): TRoutes {
     return this._routes;
   }
 
-  get currentRoute(): Route<TPath> | undefined {
+  get currentRoute(): ResolvedRoute<string> | undefined {
     return this._currentRoute;
   }
 
@@ -37,18 +28,21 @@ export class RouterClass<TPath extends RoutePath> {
     });
   }
 
-  push(path: TPath): void {
+  push(path: TPath | (string & {})): void {
     window.history.pushState({}, '', path);
     this._renderRoute(path);
   }
 
-  replace(path: TPath): void {
+  replace(path: TPath | (string & {})): void {
     window.history.replaceState({}, '', path);
     this._renderRoute(path);
   }
 
   subscribe(
-    callback: (prevRoute: Route<TPath> | undefined, currentRoute: Route<TPath>) => void
+    callback: (
+      prevRoute: ResolvedRoute<TPath> | undefined,
+      currentRoute: ResolvedRoute<TPath>
+    ) => void
   ): () => void {
     this._subscriptions.add(callback);
     return () => {
@@ -57,40 +51,75 @@ export class RouterClass<TPath extends RoutePath> {
   }
 
   private _renderRoute(path: string): void {
-    const route = this._routes.find((route) => route.path === path);
-    if (!route) {
+    const matchedRoutes = this.resolveRoute(path);
+
+    if (matchedRoutes.length === 0) {
       throw new Error(`Route not found: ${path}`);
     }
+
     const prevRoute = this._currentRoute;
-    this._currentRoute = route;
-    this._subscriptions.forEach((callback) => callback(prevRoute, route));
+
+    const currentRoute = Object.assign({}, matchedRoutes.at(0), {
+      matchedRoutes,
+      path,
+    });
+
+    this._currentRoute = currentRoute;
+    this._subscriptions.forEach((callback) => callback(prevRoute, this._currentRoute));
+  }
+
+  resolveRoute(path: string): Route[] {
+    // TODO: Implement strict route matching
+    // FIXME  "/invalid" fallbacks to the root "/" path
+    const matchedRoutes: Route[] = [];
+
+    const matchRoute = (routes: Route<any>[], segments: string[]): boolean => {
+      for (const route of routes) {
+        const routeSegments = route.path.split('/').filter(Boolean);
+
+        if (
+          segments.length >= routeSegments.length &&
+          routeSegments.every((seg, index) => seg === segments[index])
+        ) {
+          matchedRoutes.push(route);
+
+          const remainingSegments = segments.slice(routeSegments.length);
+          if (remainingSegments.length > 0 && route.children) {
+            return matchRoute(route.children, remainingSegments);
+          }
+
+          return true;
+        }
+      }
+      return false;
+    };
+
+    matchRoute(this._routes, path.split('/').filter(Boolean));
+    return matchedRoutes as Route<string>[];
   }
 }
 
 // Global router instance
-let activeRouter: RouterClass<any>;
+let activeRouter: RouterClass<any, any>;
 
-export function useRouter<TPath extends RoutePath>(): RouterClass<TPath> {
+export function useRouter(): RegisteredRouter {
   if (!activeRouter) {
     throw new Error('Router is not initialized. Please create a router instance first.');
   }
-  return activeRouter as RouterClass<TPath>;
+  return activeRouter;
 }
 
-// Factory function to create the router
-export function createRouter<TPath extends RoutePath>(
-  options: RouterOptions<TPath>
-): RouterClass<TPath> {
-  const router = new RouterClass<TPath>(options);
+export function createRouter<TRoutes extends Route[]>(options: RouterOptions<TRoutes>) {
+  const router = new RouterClass(options);
   activeRouter = router;
   return router;
 }
 
 // Type for manual declaration merging
 export interface Register {
-  // router 
+  // router
 }
-export type AnyRouter = RouterClass<RoutePath>;
+export type AnyRouter = RouterClass<any, any>;
 
 export type RegisteredRouter = Register extends {
   router: infer TRouter extends AnyRouter;

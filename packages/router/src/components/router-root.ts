@@ -1,3 +1,4 @@
+import type { Route } from '@/types';
 import { defineComponent, h } from '@smoljs/runtime';
 import { useRouter } from '../router';
 
@@ -5,20 +6,47 @@ export const RouterRoot = defineComponent({
   state() {
     const router = useRouter();
     return {
-      currentRoute: router.currentRoute?.path || '',
+      currentRoute: router.currentRoute,
+      cleanup: () => {},
     };
   },
-  render() {
+  onMounted() {
     const router = useRouter();
-    router.subscribe((_, nextRoute) => {
-      this.updateState({ currentRoute: nextRoute.path });
+    const cleanup = router.subscribe((_, nextRoute) => {
+      this.updateState({ currentRoute: nextRoute });
     });
+    this.updateState((prev) => ({ ...prev, cleanup }));
+  },
+  onUnmounted() {
+    this.state.cleanup();
+  },
+  render() {
+    // Get the matched routes for the current path
+    const matchedRoutes = this.state.currentRoute.matchedRoutes || [];
 
-    const component = router.currentRoute?.component;
-    if (!component) {
-      throw new Error('No component found for the current route');
+    // If no routes are matched, throw an error
+    // TODO: Handle 404
+    if (matchedRoutes.length === 0) {
+      throw new Error('No matched routes found');
     }
 
-    return h(component);
+    return renderComponents(matchedRoutes);
   },
 });
+
+function renderComponents(routes: Route[], index = 0) {
+  const route = routes.at(index);
+
+  if (!route) {
+    return null;
+  }
+  const Component = route.component;
+
+  if (!Component) {
+    throw new Error(`Component not found for route: ${route.path}`);
+  }
+
+  const childComponent = renderComponents(routes, index + 1);
+  // force key to re-render the component and its children
+  return h(Component, { key: route.path }, childComponent ? [childComponent] : []);
+}

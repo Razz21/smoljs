@@ -1,7 +1,8 @@
+import type { GeneratePathsFromRoutes } from '@/types';
 import { type ElementProps, type VNodeProps, defineComponent, h } from '@smoljs/runtime';
 import { type RegisteredRouter, useRouter } from '../router';
 
-type RouterPath = RegisteredRouter['routes'][number]['path'];
+type RouterPath = GeneratePathsFromRoutes<RegisteredRouter['routes']>;
 
 export const RouterLink = defineComponent({
   render(props: { to: RouterPath } & VNodeProps<ElementProps<'a'>>, { children }) {
