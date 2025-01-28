@@ -8,15 +8,22 @@
     "build:packages": "pnpm --filter \"./packages/*\" build",
     "lint": "biome ci .",
     "lint:fix": "biome lint --apply .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test": "vitest",
+    "test:run": "vitest run"
   },
   "keywords": [],
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@types/node": "^22.0.0",
+    "@vitest/coverage-v8": "3.0.4",
+    "happy-dom": "^16.7.2",
     "husky": "^9.1.7",
     "lint-staged": "^15.3.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "vite": "^6.0.0",
+    "vite-plugin-dts": "^4.5.0",
+    "vitest": "^3.0.4"
   },
   "engines": {
     "node": ">=22.0.0"
@@ -27,5 +34,9 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": ["@biomejs/biome", "esbuild"]
+  },
+  "stackblitz": {
+    "installDependencies": true,
+    "startCommand": "pnpm build:packages"
   }
 }

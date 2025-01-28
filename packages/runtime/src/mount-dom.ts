@@ -7,7 +7,6 @@ import {
   isElementVNode,
   isFragmentVNode,
   isTextVNode,
-  isVNode,
 } from '@/vdom';
 
 /**
@@ -36,13 +35,8 @@ export function mountVNode(
  * Mounts a text VNode to the DOM.
  */
 function mountTextVNode(vnode: VNode, parentElement: Element, index?: number): void {
-  const { children } = vnode;
-  const textContent = children.at(0);
-  if (typeof textContent !== 'string') {
-    console.error('Expected a string for text node, received:', textContent);
-    return;
-  }
-  const textNode = document.createTextNode(textContent);
+  const { props } = vnode;
+  const textNode = document.createTextNode(props.nodeValue);
   vnode.el = textNode;
 
   insertNode(textNode, parentElement, index);
@@ -64,9 +58,7 @@ function mountElementVNode(
   applyVNodeProps(element, vnode, hostComponent);
 
   children.forEach((child) => {
-    if (isVNode(child)) {
-      mountVNode(child, element, null, hostComponent);
-    }
+    mountVNode(child, element, null, hostComponent);
   });
 
   insertNode(element, parentElement, index);
@@ -100,9 +92,7 @@ function mountFragmentVNode(
   vnode.el = parentElement;
 
   children.forEach((child, i) => {
-    if (isVNode(child)) {
-      mountVNode(child, parentElement, index ? index + i : null, hostComponent);
-    }
+    mountVNode(child, parentElement, index ? index + i : null, hostComponent);
   });
 }
 
@@ -126,7 +116,7 @@ function mountComponentVNode(vnode: VNode, parentElement: Element, index?: numbe
 /**
  * Inserts a node into the parent element at the specified index.
  */
-export function insertNode(node: Node, parentElement: Element, index?: number): void {
+function insertNode(node: Node, parentElement: Element, index?: number): void {
   if (index == null) {
     parentElement.append(node);
     return;

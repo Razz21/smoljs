@@ -2,7 +2,7 @@ import { Component, type ComponentInstance } from '@/component';
 import type { FunctionComponent } from '@/components/types';
 import type { WritableAttributes } from '@/types';
 import { isPrototypeOf } from '@/utils';
-import { filterChildren, normalizeChildren } from './helpers';
+import { normalizeChildren } from './helpers';
 import type { Attributes, ElementVNodeListeners, Events } from './types';
 
 export const TextVNode: unique symbol = Symbol.for('text');
@@ -14,7 +14,7 @@ export interface VNode {
   _isVNode: true;
   type: VNodeTypes;
   props: VNodeProps<any>;
-  children: VNodeChildren[];
+  children: VNode[];
   el: Element | Text | null;
   ref: string | null;
   listeners: ElementVNodeListeners | null;
@@ -33,21 +33,17 @@ export type VNodeProps<T> = {
 export function createVNode(
   type: VNodeTypes,
   props?: VNodeProps<any> | null,
-  children?: VNodeChildren[],
-  shouldNormalize = true
+  children?: VNodeChildren[]
 ): VNode {
   const { ref: rawRef, ...others } = props ?? {};
-  let _children = filterChildren(children || []);
 
-  if (shouldNormalize) {
-    _children = normalizeChildren(_children);
-  }
+  const normalizedChildren = normalizeChildren(children || []);
   const ref = typeof rawRef === 'string' ? rawRef : null;
   return {
     _isVNode: true,
     type,
     props: others,
-    children: _children,
+    children: normalizedChildren,
     ref,
     el: null,
     listeners: null,
@@ -56,7 +52,10 @@ export function createVNode(
 }
 
 export function createTextVNode(value: string) {
-  return createVNode(TextVNode, null, [value], false);
+  return createVNode(TextVNode, { nodeValue: value });
+}
+export function createFragmentVNode(children: VNodeChildren[]): VNode {
+  return createVNode(FragmentVNode, null, children);
 }
 
 export function isVNode(value?: any): value is VNode {

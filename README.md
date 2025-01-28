@@ -16,7 +16,12 @@ It provides a simple API for defining smol components. Supports both traditional
 `Smol.js` is inspired by good ol' Vue.js, and you will find many common elements and patterns.
 
 > [!NOTE]
-> This project was created purely for learning purposes. It's definitely not ready for production, but if you're the type who enjoys a little adventure and doesn't mind diving into some debugging along the way, you might just enjoy the ride.
+> This project was created purely for learning purposes. It's not ready for production yet, but if you're the type who enjoys a little adventure and doesn't mind diving into some debugging along the way, you might just enjoy the ride.
+
+
+<br />
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/Razz21/smoljs/tree/develop?file=README.md&reload=true)
 
 # Getting Started
 

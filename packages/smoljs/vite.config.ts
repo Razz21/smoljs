@@ -4,6 +4,7 @@ import dts from 'vite-plugin-dts';
 
 export default defineConfig({
   build: {
+    target: 'esnext',
     lib: {
       entry: [resolve(__dirname, 'src/index.ts'), resolve(__dirname, 'src/jsx-runtime.ts')],
       name: 'Smoljs',
@@ -11,7 +12,7 @@ export default defineConfig({
     },
 
     rollupOptions: {
-      preserveEntrySignatures: "allow-extension",
+      preserveEntrySignatures: 'allow-extension',
       external: ['@smoljs/runtime'],
       output: {
         globals: {
