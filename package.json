@@ -34,5 +34,9 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": ["@biomejs/biome", "esbuild"]
+  },
+  "stackblitz": {
+    "installDependencies": true,
+    "startCommand": "build:packages"
   }
 }
