@@ -37,6 +37,6 @@
   },
   "stackblitz": {
     "installDependencies": true,
-    "startCommand": "build:packages"
+    "startCommand": "pnpm build:packages"
   }
 }
