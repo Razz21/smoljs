@@ -21,7 +21,7 @@ It provides a simple API for defining smol components. Supports both traditional
 
 <br />
 
-[![Open repository in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/Razz21/smoljs/tree/develop?file=README.md)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/Razz21/smoljs/tree/develop?file=README.md&reload=true)
 
 # Getting Started
 
