@@ -21,6 +21,9 @@ export const Navigation = defineComponent({
     return h('nav', {}, [
       h(RouterLink, { to: '/', class: isActive('/') }, ['Home']),
       h(RouterLink, { to: '/about', class: isActive('/about') }, ['About']),
+      h(RouterLink, { to: '/profile', class: isActive('/profile') }, ['Profile']),
+      h(RouterLink, { to: '/profile/settings', class: isActive('/profile/settings') }, ['Profile Settings']),
+      h(RouterLink, { to: '/profile/account', class: isActive('/profile/account') }, ['Profile account']),
       // @ts-expect-error - Not registered route
       h(RouterLink, { to: '/invalid', class: isActive('/invalid') }, ['Invalid']),
     ]);
