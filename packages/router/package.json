@@ -7,6 +7,7 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.min.js"
     }
@@ -17,8 +18,6 @@
     "build": "vite build"
   },
   "devDependencies": {
-    "vite": "^4.4.5",
-    "vite-plugin-dts": "^4.5.0",
     "@smoljs/runtime": "workspace:*"
   },
   "dependencies": {}
