@@ -47,6 +47,10 @@ const ProfileAccount = defineComponent({
   },
 });
 
+function Page404() {
+  return h('div', { class: 'page' }, [h('h1', null, ['404 Not Found'])]);
+}
+
 const routes = [
   {
     path: '/profile',
@@ -75,6 +79,10 @@ const routes = [
   {
     path: '/',
     component: Home,
+  },
+  {
+    path: '*any',
+    component: Page404,
   },
 ] as const satisfies Route[];
 

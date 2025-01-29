@@ -23,7 +23,6 @@ export const RouterRoot = defineComponent({
   render() {
     const matchedRoutes = this.state.currentRoute.matchedRoutes;
 
-    // TODO: Handle 404
     if (matchedRoutes.length === 0) {
       throw new Error('No matched routes found');
     }

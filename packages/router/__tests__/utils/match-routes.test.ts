@@ -85,5 +85,19 @@ describe('matchRoutes', () => {
     );
   });
 
-  test.todo("should match the wildcard path '*'");
+  test("should match the wildcard path '*foo'", () => {
+    const realPath = '/custom-path';
+    const matchAnyRoute = { path: '*foo', component: 'Page404' } as any as Route;
+
+    const matchingResult = matchRoutes([...trees, matchAnyRoute], realPath);
+
+    expect(matchingResult).toEqual(
+      expect.objectContaining({
+        matchedRoutes: expect.arrayContaining([matchAnyRoute]),
+        fullPattern: '/*foo',
+        path: realPath,
+        params: { foo: ['custom-path'] },
+      })
+    );
+  });
 });
