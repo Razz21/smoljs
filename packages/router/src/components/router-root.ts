@@ -21,10 +21,8 @@ export const RouterRoot = defineComponent({
     this.state.cleanup();
   },
   render() {
-    // Get the matched routes for the current path
-    const matchedRoutes = this.state.currentRoute.matchedRoutes || [];
+    const matchedRoutes = this.state.currentRoute.matchedRoutes;
 
-    // If no routes are matched, throw an error
     // TODO: Handle 404
     if (matchedRoutes.length === 0) {
       throw new Error('No matched routes found');

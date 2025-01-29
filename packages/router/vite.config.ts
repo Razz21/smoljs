@@ -1,8 +1,14 @@
+/// <reference types="vitest" />
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+    },
+  },
   build: {
     target: 'esnext',
     sourcemap: true,
@@ -22,6 +28,8 @@ export default defineConfig({
       },
     },
   },
-
   plugins: [dts({ rollupTypes: true })],
+  test: {
+    environment: 'happy-dom',
+  },
 });

@@ -1,4 +1,4 @@
-import { type Route, createRouter } from '@smoljs/router';
+import { type Route, RouterLink, createRouter, useRouter } from '@smoljs/router';
 import { createApp, defineComponent, h } from 'smoljs';
 import { App } from './App';
 import './style.css';
@@ -21,8 +21,23 @@ const ProfilePage = defineComponent({
 });
 
 const ProfileSettings = defineComponent({
+  render(_, { children }) {
+    return h('div', { class: 'page sub-page' }, [
+      'Profile Settings',
+      h('nav', {}, [
+        h(RouterLink, { to: '/profile/settings/100' }, ['Profile 100']),
+        h(RouterLink, { to: '/profile/settings/123' }, ['Profile 123']),
+      ]),
+      ...children,
+    ]);
+  },
+});
+
+const ProfileSettingsId = defineComponent({
   render() {
-    return h('div', { class: 'page sub-page' }, ['Profile Settings']);
+    const router = useRouter();
+    const id = router.currentRoute.params.id;
+    return h('div', { class: 'page sub-page' }, [`Profile Settings ID: ${id}`]);
   },
 });
 
@@ -40,6 +55,12 @@ const routes = [
       {
         path: '/settings',
         component: ProfileSettings,
+        children: [
+          {
+            path: '/:id',
+            component: ProfileSettingsId,
+          },
+        ],
       },
       {
         path: '/account',

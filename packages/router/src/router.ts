@@ -1,11 +1,14 @@
 import type { GeneratePathsFromRoutes, ResolvedRoute, Route, RouterOptions } from './types';
+import { matchRoutes } from './utils';
 
 // Core Router Class
 export class RouterClass<TRoutes extends Route[], TPath extends GeneratePathsFromRoutes<TRoutes>> {
   private _routes: TRoutes = [] as TRoutes;
-  private _currentRoute?: ResolvedRoute<string>;
+  private _currentRoute: ResolvedRoute;
+
+  // Subscribe to route changes
   private _subscriptions = new Set<
-    (prevRoute: ResolvedRoute<string> | undefined, currentRoute: ResolvedRoute<string>) => void
+    (prevRoute: ResolvedRoute | undefined, currentRoute: ResolvedRoute) => void
   >();
 
   constructor(options: RouterOptions<TRoutes>) {
@@ -16,7 +19,7 @@ export class RouterClass<TRoutes extends Route[], TPath extends GeneratePathsFro
     return this._routes;
   }
 
-  get currentRoute(): ResolvedRoute<string> | undefined {
+  get currentRoute(): ResolvedRoute {
     return this._currentRoute;
   }
 
@@ -39,10 +42,7 @@ export class RouterClass<TRoutes extends Route[], TPath extends GeneratePathsFro
   }
 
   subscribe(
-    callback: (
-      prevRoute: ResolvedRoute<TPath> | undefined,
-      currentRoute: ResolvedRoute<TPath>
-    ) => void
+    callback: (prevRoute: ResolvedRoute | undefined, currentRoute: ResolvedRoute) => void
   ): () => void {
     this._subscriptions.add(callback);
     return () => {
@@ -51,51 +51,21 @@ export class RouterClass<TRoutes extends Route[], TPath extends GeneratePathsFro
   }
 
   private _renderRoute(path: string): void {
-    const matchedRoutes = this.resolveRoute(path);
+    const currentRoute = this._resolveRoute(path);
 
-    if (matchedRoutes.length === 0) {
+    if (!currentRoute) {
       throw new Error(`Route not found: ${path}`);
     }
 
     const prevRoute = this._currentRoute;
 
-    const currentRoute = Object.assign({}, matchedRoutes.at(0), {
-      matchedRoutes,
-      path,
-    });
-
     this._currentRoute = currentRoute;
     this._subscriptions.forEach((callback) => callback(prevRoute, this._currentRoute));
   }
 
-  resolveRoute(path: string): Route[] {
-    // TODO: Implement strict route matching
-    // FIXME  "/invalid" fallbacks to the root "/" path
-    const matchedRoutes: Route[] = [];
-
-    const matchRoute = (routes: Route<any>[], segments: string[]): boolean => {
-      for (const route of routes) {
-        const routeSegments = route.path.split('/').filter(Boolean);
-
-        if (
-          segments.length >= routeSegments.length &&
-          routeSegments.every((seg, index) => seg === segments[index])
-        ) {
-          matchedRoutes.push(route);
-
-          const remainingSegments = segments.slice(routeSegments.length);
-          if (remainingSegments.length > 0 && route.children) {
-            return matchRoute(route.children, remainingSegments);
-          }
-
-          return true;
-        }
-      }
-      return false;
-    };
-
-    matchRoute(this._routes, path.split('/').filter(Boolean));
-    return matchedRoutes as Route<string>[];
+  private _resolveRoute(path: string) {
+    const result = matchRoutes(this._routes, path);
+    return result;
   }
 }
 

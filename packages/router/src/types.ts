@@ -8,8 +8,11 @@ export interface Route<T extends RoutePath = RoutePath> {
   children?: Route[];
 }
 
-export type ResolvedRoute<TPath extends RoutePath> = Route<TPath> & {
-  matchedRoutes: Route<TPath>[];
+export type ResolvedRoute = {
+  matchedRoutes: Route[];
+  fullPattern: string;
+  params: Record<string, string | string[]>;
+  path: string;
 };
 
 export type RouterOptions<TRoutes extends Route[]> = { routes: TRoutes };

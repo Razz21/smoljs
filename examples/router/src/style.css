@@ -15,6 +15,12 @@
   --container-height: 700px;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   background-color: var(--bg-color);
@@ -106,6 +112,7 @@ button:active {
   align-items: center;
   height: 100%;
   width: 100%;
+  padding: var(--content-spacing);
 }
 
 .sub-page {

@@ -12,7 +12,9 @@
       "require": "./dist/index.min.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite build --watch",
     "build": "vite build"
@@ -20,5 +22,7 @@
   "devDependencies": {
     "@smoljs/runtime": "workspace:*"
   },
-  "dependencies": {}
+  "dependencies": {
+    "path-to-regexp": "^8.2.0"
+  }
 }
