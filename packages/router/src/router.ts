@@ -1,8 +1,11 @@
-import type { GeneratePathsFromRoutes, ResolvedRoute, Route, RouterOptions } from './types';
+import { compile } from 'path-to-regexp';
+import type { ExtractPaths, PathParams, ResolvedRoute, Route, RouterOptions } from './types';
 import { matchRoutes } from './utils';
 
+type PathObject<T extends string> = { pathname: T; params: PathParams<T> };
+
 // Core Router Class
-export class RouterClass<TRoutes extends Route[], TPath extends GeneratePathsFromRoutes<TRoutes>> {
+export class RouterClass<TRoutes extends Route[]> {
   private _routes: TRoutes = [] as TRoutes;
   private _currentRoute: ResolvedRoute;
 
@@ -29,16 +32,26 @@ export class RouterClass<TRoutes extends Route[], TPath extends GeneratePathsFro
     window.addEventListener('popstate', this._onPopState.bind(this));
   }
 
-  cleanup() {
+  cleanup(): void {
     window.removeEventListener('popstate', this._onPopState.bind(this));
   }
 
-  push(path: TPath | (string & {})): void {
+  push<TPathname extends ExtractPaths<TRoutes>>(path: PathObject<TPathname>): void;
+  push(path: string): void;
+  push(path: any): void {
+    if (typeof path === 'object') {
+      path = this._compilePath(path);
+    }
     window.history.pushState({}, '', path);
     this._renderRoute(path);
   }
 
-  replace(path: TPath | (string & {})): void {
+  replace<TPathname extends ExtractPaths<TRoutes>>(path: PathObject<TPathname>): void;
+  replace(path: string): void;
+  replace(path: any): void {
+    if (typeof path === 'object') {
+      path = this._compilePath(path);
+    }
     window.history.replaceState({}, '', path);
     this._renderRoute(path);
   }
@@ -52,8 +65,12 @@ export class RouterClass<TRoutes extends Route[], TPath extends GeneratePathsFro
     };
   }
 
-  _onPopState() {
+  private _onPopState(): void {
     this._renderRoute(window.location.pathname);
+  }
+
+  private _compilePath(path: PathObject<string>): string {
+    return compile(path.pathname)(path.params);
   }
 
   private _renderRoute(path: string): void {
@@ -73,14 +90,14 @@ export class RouterClass<TRoutes extends Route[], TPath extends GeneratePathsFro
     this._subscriptions.forEach((callback) => callback(prevRoute, this._currentRoute));
   }
 
-  private _resolveRoute(path: string) {
+  private _resolveRoute(path: string): ResolvedRoute | null {
     const result = matchRoutes(this.routes, path);
     return result;
   }
 }
 
 // Global router instance
-let activeRouter: RouterClass<any, any>;
+let activeRouter: RouterClass<Route[]>;
 
 export function useRouter(): RegisteredRouter {
   if (!activeRouter) {
@@ -99,7 +116,7 @@ export function createRouter<TRoutes extends Route[]>(options: RouterOptions<TRo
 export interface Register {
   // router
 }
-export type AnyRouter = RouterClass<any, any>;
+export type AnyRouter = RouterClass<Route[]>;
 
 export type RegisteredRouter = Register extends {
   router: infer TRouter extends AnyRouter;

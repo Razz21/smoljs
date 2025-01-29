@@ -19,7 +19,7 @@ describe('RouterClass', () => {
     },
   ] as any satisfies Route[];
 
-  let router: RouterClass<any, any>;
+  let router: RouterClass<Route[]>;
 
   beforeEach(() => {
     window.history.replaceState({}, '', '/');
@@ -53,6 +53,17 @@ describe('RouterClass', () => {
     });
   });
 
+  it('should push a new route with a path object', () => {
+    router.push({ pathname: '/about', params: {} });
+
+    expect(router.currentRoute).toMatchObject({
+      path: '/about',
+      fullPattern: '/about',
+      matchedRoutes: [{ path: '/about', component: 'About' }],
+      params: {},
+    });
+  });
+
   it('should push a nested route', () => {
     router.push('/nested/child');
 
@@ -75,6 +86,26 @@ describe('RouterClass', () => {
     const id = '1234';
     const path = `/dynamic/${id}`;
     router.push(path);
+
+    expect(router.currentRoute).toMatchObject({
+      path: path,
+      fullPattern: '/dynamic/:id',
+      matchedRoutes: [
+        {
+          path: '/dynamic',
+          component: 'Dynamic',
+          children: [{ path: '/:id', component: 'DynamicId' }],
+        },
+        { path: '/:id', component: 'DynamicId' },
+      ],
+      params: { id },
+    });
+  });
+
+  it('should push a dynamic route with router object', () => {
+    const id = '1234';
+    const path = `/dynamic/${id}`;
+    router.push({ pathname: '/dynamic/:id', params: { id } });
 
     expect(router.currentRoute).toMatchObject({
       path: path,
@@ -123,7 +154,7 @@ describe('RouterClass', () => {
 
   it('should maintain correct navigation state after replace', () => {
     router.push('/about');
-    router.replace('/nested/child');
+    router.replace({ pathname: '/nested/child', params: {} });
 
     window.history.back();
     window.dispatchEvent(new Event('popstate'));

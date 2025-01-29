@@ -5,7 +5,7 @@ export type RoutePath = string;
 export interface Route<T extends RoutePath = RoutePath> {
   path: T;
   component: ComponentInstance | FunctionComponent<any>;
-  children?: Route[];
+  children?: Route<T>[];
 }
 
 export type ResolvedRoute = {
@@ -17,25 +17,38 @@ export type ResolvedRoute = {
 
 export type RouterOptions<TRoutes extends Route[]> = { routes: TRoutes };
 
-export type GeneratePathsFromRoutes<T extends Route[]> = T extends [
-  infer Head extends Route,
-  ...infer Tail extends Route[],
-]
-  ? GeneratePaths<Head> | GeneratePathsFromRoutes<Tail>
-  : never;
+type NormalizePath<P extends string> = P extends `/${infer Rest}` ? `/${Rest}` : `/${P}`;
 
-export type GeneratePaths<T extends Route, TPrefix extends string = ''> = T extends {
-  path: infer P extends string;
-  children?: infer C extends Route[];
-}
-  ? C extends Route[]
-    ? `${TPrefix}${P}` | GeneratePathsFromChildren<C, `${TPrefix}${P}`>
-    : `${TPrefix}${P}`
-  : never;
+type ExtractPathsHelper<
+  T extends readonly Route[],
+  Prefix extends string = '',
+  Depth extends readonly unknown[] = [],
+> = Depth['length'] extends 30 // Suppresses TS Limit recursion depth error
+  ? never
+  : T extends readonly (infer R)[]
+    ? R extends Route
+      ?
+          | `${Prefix}${NormalizePath<R['path']>}`
+          | (R['children'] extends readonly Route[]
+              ? ExtractPathsHelper<
+                  R['children'],
+                  `${Prefix}${NormalizePath<R['path']>}`,
+                  [...Depth, unknown]
+                >
+              : never)
+      : never
+    : never;
 
-type GeneratePathsFromChildren<
-  TChildren extends Route[],
-  TPrefix extends string,
-> = TChildren extends [infer Head extends Route, ...infer Tail extends Route[]]
-  ? GeneratePaths<Head, `${TPrefix}`> | GeneratePathsFromChildren<Tail, `${TPrefix}`>
-  : never;
+export type ExtractPaths<T extends readonly Route[]> = ExtractPathsHelper<T, ''>;
+
+type Split<S extends string, D extends string> = string extends S
+  ? string
+  : S extends ''
+    ? never
+    : S extends `${infer T}${D}${infer U}`
+      ? T | Split<U, D>
+      : S;
+
+type InferDynamicString<T extends string> = T extends `:${infer V}` ? V : never;
+
+export type PathParams<TPath extends string> = Record<InferDynamicString<Split<TPath, '/'>>, string>;
