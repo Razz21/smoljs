@@ -26,9 +26,11 @@ export class RouterClass<TRoutes extends Route[], TPath extends GeneratePathsFro
   init(): void {
     this._renderRoute(window.location.pathname);
 
-    window.addEventListener('popstate', () => {
-      this._renderRoute(window.location.pathname);
-    });
+    window.addEventListener('popstate', this._onPopState.bind(this));
+  }
+
+  cleanup() {
+    window.removeEventListener('popstate', this._onPopState.bind(this));
   }
 
   push(path: TPath | (string & {})): void {
@@ -50,7 +52,15 @@ export class RouterClass<TRoutes extends Route[], TPath extends GeneratePathsFro
     };
   }
 
+  _onPopState() {
+    this._renderRoute(window.location.pathname);
+  }
+
   private _renderRoute(path: string): void {
+    if (path === this._currentRoute?.path) {
+      console.warn(`Navigation to the same path "${path}" is not allowed`);
+      return;
+    }
     const currentRoute = this._resolveRoute(path);
 
     if (!currentRoute) {
@@ -64,7 +74,7 @@ export class RouterClass<TRoutes extends Route[], TPath extends GeneratePathsFro
   }
 
   private _resolveRoute(path: string) {
-    const result = matchRoutes(this._routes, path);
+    const result = matchRoutes(this.routes, path);
     return result;
   }
 }
