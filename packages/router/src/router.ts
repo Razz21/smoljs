@@ -1,8 +1,6 @@
 import { compile } from 'path-to-regexp';
-import type { ExtractPaths, PathParams, ResolvedRoute, Route, RouterOptions } from './types';
+import type { ExtractPaths, PathObject, ResolvedRoute, Route, RouterOptions } from './types';
 import { matchRoutes } from './utils';
-
-type PathObject<T extends string> = { pathname: T; params: PathParams<T> };
 
 // Core Router Class
 export class RouterClass<TRoutes extends Route[]> {

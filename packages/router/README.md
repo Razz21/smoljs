@@ -1,6 +1,6 @@
 # @smoljs/router
 
-A simple router for `SmolJS` applications.
+A simple router for `Smoljs` applications.
 
 ## Usage
 
@@ -39,7 +39,7 @@ export const routes = [
     path: '*any',
     component: Page404,
   },
-] satisfies Route[];
+] as const satisfies Route[];
 ```
 
 Package uses [`path-to-regexp`](https://github.com/pillarjs/path-to-regexp/) library to match paths. You can use dynamic segments in your paths by using `:name` syntax. For example, `/profile/:id` will match `/profile/1`, `/profile/2`, etc. For the best experience and type safety all paths should start with a leading slash `/`.
@@ -50,7 +50,7 @@ Package uses [`path-to-regexp`](https://github.com/pillarjs/path-to-regexp/) lib
 
 ### Initialize Router
 
-Initialize the router with the defined routes:
+Initialize the router with defined routes:
 
 ```typescript
 // src/main.ts
@@ -111,6 +111,8 @@ a.active {
   font-weight: bold;
 }
 ```
+
+
 You can also use the `exact` prop to match the URL exactly.
 
 ```typescript
@@ -130,12 +132,17 @@ export const App = defineComponent({
 
 In example above, the Home link will have the `active` class only when the URL hits `/`.
 
-### Type Safety
+## Type Safety
 
-To ensure type safety across your application, you need to register your router instance with the `@smoljs/router` module. This is done using declaration merging on the exported `Register` interface. By doing this, the router's types permeate the TypeScript module boundary, allowing you to use the exported components and utilities with your router's exact types.
+To ensure type safety across your application, make sure to type `routes` as literal type using const assertions (`as const`) and register your router instance with the `@smoljs/router` module. This is done using declaration merging on the exported `Register` interface. By doing this, the router's types permeate the TypeScript module boundary, allowing you to use the exported components and utilities with your router's exact types.
 
 ```typescript
 // src/main.ts
+
+const routes = [
+  // routes
+] as const satisfies Route[];
+
 const router = Router.create({ routes }).init();
 
 declare module '@smoljs/router' {
@@ -145,7 +152,7 @@ declare module '@smoljs/router' {
 }
 ```
 
-#### Type Safe Navigation
+### Type Safe Navigation
 
 `@smoljs/router` router instance provides a basic utility functions `push` and `replace` that allows you to navigate to a new URL. These function are type-safe and will ensure that the URL you are navigating to matches one of the routes you have defined.
 
@@ -177,7 +184,10 @@ router.push({ pathname: '/profile/:id', params: { id: 1 } });
 > ```
 
 
-
-### Full Example
+## Full Example
 
 For a complete example, including navigation and router components, see the [examples/router](../../examples/router) module.
+
+
+## TODO
+- [ ] Add support for query parameters

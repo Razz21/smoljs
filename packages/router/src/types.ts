@@ -17,6 +17,8 @@ export type ResolvedRoute = {
 
 export type RouterOptions<TRoutes extends Route[]> = { routes: TRoutes };
 
+export type PathObject<T extends string> = { pathname: T; params: PathParams<T> };
+
 type NormalizePath<P extends string> = P extends `/${infer Rest}` ? `/${Rest}` : `/${P}`;
 
 type ExtractPathsHelper<
@@ -42,13 +44,13 @@ type ExtractPathsHelper<
 export type ExtractPaths<T extends readonly Route[]> = ExtractPathsHelper<T, ''>;
 
 type Split<S extends string, D extends string> = string extends S
-  ? string
+  ? [string]
   : S extends ''
-    ? never
+    ? []
     : S extends `${infer T}${D}${infer U}`
-      ? T | Split<U, D>
-      : S;
+      ? [...Split<T, D>, ...Split<U, D>]
+      : [S];
 
-type InferDynamicString<T extends string> = T extends `:${infer V}` ? V : never;
-
-export type PathParams<TPath extends string> = Record<InferDynamicString<Split<TPath, '/'>>, string>;
+export type PathParams<TPath extends string> = {
+  [K in Split<TPath, '/'>[number] as K extends `:${infer Param}` ? Param : never]: string;
+};
