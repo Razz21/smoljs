@@ -10,3 +10,13 @@ By proceeding, you acknowledge that:
 • If your computer starts sounding like a jet engine or achieves sentience, that’s on you.
 • We are not liable for melted GPUs, fried CPUs, or the sudden disappearance of your RGB lighting.
 • Any crashes, data loss, or existential crises triggered by this benchmark are entirely your responsibility.
+
+To run this example:
+
+```sh
+cd examples/benchmark
+
+pnpm dev
+```
+
+The app will start on http://localhost:3000
