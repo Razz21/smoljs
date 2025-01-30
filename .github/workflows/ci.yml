@@ -25,13 +25,6 @@ jobs:
   test-coverage:
     name: Continuous Integration
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - branch: develop
-            artifact: develop
-          - branch: ${{ github.head_ref }}
-            artifact: pull-request
 
     permissions:
       contents: read
