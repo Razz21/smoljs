@@ -24,6 +24,7 @@ concurrency:
 jobs:
   test-coverage:
     name: Continuous Integration
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
 
     permissions:
