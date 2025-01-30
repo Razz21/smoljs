@@ -1,4 +1,5 @@
 import type { ComponentInstance, FunctionComponent } from '@smoljs/runtime';
+import type { ParsedQuery } from 'query-string';
 
 export type RoutePath = string;
 
@@ -10,14 +11,14 @@ export interface Route<T extends RoutePath = RoutePath> {
 
 export type ResolvedRoute = {
   matchedRoutes: Route[];
-  fullPattern: string;
+  pathname: string;
   params: Record<string, string | string[]>;
+  search?: ParsedQuery<string>;
   path: string;
+  fullPath: string;
 };
 
 export type RouterOptions<TRoutes extends Route[]> = { routes: TRoutes };
-
-export type PathObject<T extends string> = { pathname: T; params: PathParams<T> };
 
 type NormalizePath<P extends string> = P extends `/${infer Rest}` ? `/${Rest}` : `/${P}`;
 
@@ -53,4 +54,10 @@ type Split<S extends string, D extends string> = string extends S
 
 export type PathParams<TPath extends string> = {
   [K in Split<TPath, '/'>[number] as K extends `:${infer Param}` ? Param : never]: string;
+};
+
+export type PathObject<T extends string> = {
+  pathname: T;
+  params?: PathParams<T>;
+  search?: Record<string, string | string[]>;
 };

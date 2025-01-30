@@ -23,6 +23,7 @@
     "@smoljs/runtime": "workspace:*"
   },
   "dependencies": {
-    "path-to-regexp": "^8.2.0"
+    "path-to-regexp": "^8.2.0",
+    "query-string": "^9.1.1"
   }
 }

@@ -34,22 +34,26 @@ describe('RouterClass', () => {
   });
 
   it('should render the route on init', () => {
-    expect(router.currentRoute).toMatchObject({
+    expect(router.currentRoute).toEqual({
+      fullPath: '/',
       path: '/',
-      fullPattern: '/',
+      pathname: '/',
       matchedRoutes: [{ path: '/', component: 'Home' }],
       params: {},
+      search: {},
     });
   });
 
   it('should push a new route', () => {
     router.push('/about');
 
-    expect(router.currentRoute).toMatchObject({
+    expect(router.currentRoute).toEqual({
+      fullPath: '/about',
       path: '/about',
-      fullPattern: '/about',
+      pathname: '/about',
       matchedRoutes: [{ path: '/about', component: 'About' }],
       params: {},
+      search: {},
     });
   });
 
@@ -58,7 +62,7 @@ describe('RouterClass', () => {
 
     expect(router.currentRoute).toMatchObject({
       path: '/about',
-      fullPattern: '/about',
+      pathname: '/about',
       matchedRoutes: [{ path: '/about', component: 'About' }],
       params: {},
     });
@@ -69,7 +73,7 @@ describe('RouterClass', () => {
 
     expect(router.currentRoute).toMatchObject({
       path: '/nested/child',
-      fullPattern: '/nested/child',
+      pathname: '/nested/child',
       matchedRoutes: [
         {
           path: '/nested',
@@ -87,9 +91,31 @@ describe('RouterClass', () => {
     const path = `/dynamic/${id}`;
     router.push(path);
 
+    expect(router.currentRoute).toEqual({
+      fullPath: '/dynamic/1234',
+      path: path,
+      pathname: '/dynamic/:id',
+      matchedRoutes: [
+        {
+          path: '/dynamic',
+          component: 'Dynamic',
+          children: [{ path: '/:id', component: 'DynamicId' }],
+        },
+        { path: '/:id', component: 'DynamicId' },
+      ],
+      params: { id },
+      search: {},
+    });
+  });
+
+  it('should push a dynamic route with router object', () => {
+    const id = '1234';
+    const path = `/dynamic/${id}`;
+    router.push({ pathname: '/dynamic/:id', params: { id } });
+
     expect(router.currentRoute).toMatchObject({
       path: path,
-      fullPattern: '/dynamic/:id',
+      pathname: '/dynamic/:id',
       matchedRoutes: [
         {
           path: '/dynamic',
@@ -102,23 +128,31 @@ describe('RouterClass', () => {
     });
   });
 
-  it('should push a dynamic route with router object', () => {
-    const id = '1234';
-    const path = `/dynamic/${id}`;
-    router.push({ pathname: '/dynamic/:id', params: { id } });
+  it('should push a route with search params', () => {
+    router.push('/about?hello=world');
 
-    expect(router.currentRoute).toMatchObject({
-      path: path,
-      fullPattern: '/dynamic/:id',
-      matchedRoutes: [
-        {
-          path: '/dynamic',
-          component: 'Dynamic',
-          children: [{ path: '/:id', component: 'DynamicId' }],
-        },
-        { path: '/:id', component: 'DynamicId' },
-      ],
-      params: { id },
+    expect(router.currentRoute).toEqual({
+      fullPath: '/about?hello=world',
+      path: '/about',
+      pathname: '/about',
+      matchedRoutes: [{ path: '/about', component: 'About' }],
+      params: {},
+      search: { hello: 'world' },
+    });
+  });
+
+  it('should resolve a route from object path with search params', () => {
+    const pathname = '/about';
+    const search = { hello: 'world', multiple: ['some', 'value'] };
+    router.push({ pathname, search });
+
+    expect(router.currentRoute).toEqual({
+      fullPath: '/about?hello=world&multiple=some&multiple=value',
+      path: pathname,
+      pathname: pathname,
+      matchedRoutes: [{ path: '/about', component: 'About' }],
+      params: {},
+      search,
     });
   });
 
@@ -133,7 +167,7 @@ describe('RouterClass', () => {
 
     expect(router.currentRoute).toMatchObject({
       path: '/nested/child',
-      fullPattern: '/nested/child',
+      pathname: '/nested/child',
       matchedRoutes: [
         { path: '/nested', component: 'Nested' },
         { path: '/child', component: 'NestedChild' },
@@ -146,7 +180,7 @@ describe('RouterClass', () => {
 
     expect(router.currentRoute).toMatchObject({
       path: '/about',
-      fullPattern: '/about',
+      pathname: '/about',
       matchedRoutes: [{ path: '/about', component: 'About' }],
       params: {},
     });
@@ -161,7 +195,7 @@ describe('RouterClass', () => {
 
     expect(router.currentRoute).toMatchObject({
       path: '/',
-      fullPattern: '/',
+      pathname: '/',
       matchedRoutes: [{ path: '/', component: 'Home' }],
       params: {},
     });

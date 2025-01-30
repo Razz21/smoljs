@@ -24,9 +24,11 @@ function findMatchingRoutes(root: Route, path: string): ResolvedRoute | null {
     if (matchResult) {
       result = {
         matchedRoutes: newBranch,
-        fullPattern: newFullPath,
+        pathname: newFullPath,
         params: matchResult.params,
         path: matchResult.path,
+        search: null,
+        fullPath: null,
       };
       return;
     }

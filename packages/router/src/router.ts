@@ -1,4 +1,5 @@
 import { compile } from 'path-to-regexp';
+import queryString from 'query-string';
 import type { ExtractPaths, PathObject, ResolvedRoute, Route, RouterOptions } from './types';
 import { matchRoutes } from './utils';
 
@@ -25,7 +26,7 @@ export class RouterClass<TRoutes extends Route[]> {
   }
 
   init(): void {
-    this._renderRoute(window.location.pathname);
+    this._renderRoute(this._currentUrl);
 
     window.addEventListener('popstate', this._onPopState.bind(this));
   }
@@ -38,20 +39,20 @@ export class RouterClass<TRoutes extends Route[]> {
   push(path: string): void;
   push(path: any): void {
     if (typeof path === 'object') {
-      path = this._compilePath(path);
+      path = this._compilePathObject(path);
     }
     window.history.pushState({}, '', path);
-    this._renderRoute(path);
+    this._renderRoute(new URL(path, 'http://localhost')); // dummy origin for URL constructor
   }
 
   replace<TPathname extends ExtractPaths<TRoutes>>(path: PathObject<TPathname>): void;
   replace(path: string): void;
   replace(path: any): void {
     if (typeof path === 'object') {
-      path = this._compilePath(path);
+      path = this._compilePathObject(path);
     }
     window.history.replaceState({}, '', path);
-    this._renderRoute(path);
+    this._renderRoute(new URL(path, 'http://localhost')); // dummy origin for URL constructor
   }
 
   subscribe(
@@ -63,24 +64,36 @@ export class RouterClass<TRoutes extends Route[]> {
     };
   }
 
+  private get _currentUrl(): URL {
+    return new URL(window.location.href);
+  }
+
   private _onPopState(): void {
-    this._renderRoute(window.location.pathname);
+    this._renderRoute(this._currentUrl);
   }
 
-  private _compilePath(path: PathObject<string>): string {
-    return compile(path.pathname)(path.params);
+  private _compilePathObject(path: PathObject<string>): string {
+    const pathname = compile(path.pathname)(path.params);
+    const searchParams = queryString.stringify(path.search);
+
+    const fullPath = pathname + (searchParams ? `?${searchParams}` : '');
+    return fullPath;
   }
 
-  private _renderRoute(path: string): void {
-    if (path === this._currentRoute?.path) {
-      console.warn(`Navigation to the same path "${path}" is not allowed`);
+  private _renderRoute(url: URL): void {
+    const fullPath = url.href.replace(url.origin, '');
+    if (fullPath === this._currentRoute?.fullPath) {
+      console.warn(`Navigation to the same path "${fullPath}" is not allowed`);
       return;
     }
-    const currentRoute = this._resolveRoute(path);
+    const currentRoute = this._resolveRoute(url.pathname);
 
     if (!currentRoute) {
-      throw new Error(`Route not found: ${path}`);
+      throw new Error(`Route not found: ${url.pathname}`);
     }
+    currentRoute.path = url.pathname;
+    currentRoute.fullPath = fullPath;
+    currentRoute.search = queryString.parse(url.search);
 
     const prevRoute = this._currentRoute;
 

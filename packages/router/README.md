@@ -169,7 +169,7 @@ router.push('/profile/1');
 
 // alternatively, use path route object and a raw pathname property 
 
-router.push({ pathname: '/profile/:id', params: { id: 1 } });
+router.push({ pathname: '/profile/:id', params: { id: 1 }, search: { hello: "world" } });
 
 ```
 
@@ -180,14 +180,10 @@ router.push({ pathname: '/profile/:id', params: { id: 1 } });
 > import { RouterLink } from '@smoljs/router';
 > import { h } from 'smoljs';
 >
-> h(RouterLink, { to: '/profile/123' }, ['About'])
+> h(RouterLink, { to: '/profile/123?hello=world' }, ['About'])
 > ```
 
 
 ## Full Example
 
 For a complete example, including navigation and router components, see the [examples/router](../../examples/router) module.
-
-
-## TODO
-- [ ] Add support for query parameters
