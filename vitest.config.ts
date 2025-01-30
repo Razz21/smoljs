@@ -6,6 +6,14 @@ export default defineConfig({
       enabled: true,
       provider: 'v8',
       include: ['packages/**/src/**/*.{ts,js}'],
+      reporter: ['text', 'json-summary', 'json'],
+      reportOnFailure: true,
+      thresholds: {
+        lines: 80,
+        branches: 80,
+        functions: 80,
+        statements: 80,
+      },
     },
   },
 });
