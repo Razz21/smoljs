@@ -72,3 +72,26 @@ const App = () => {
 };
 
 ```
+
+# Caveats
+
+When using the `defineComponent` factory and passing an internal method as a prop to a child component, ensure you explicitly bind the `this` context to the component instance. This is necessary to maintain the correct context for the method when it is invoked.
+
+```tsx
+// App.tsx
+
+import { defineComponent } from 'smoljs';
+import MyComponent from './MyComponent';
+
+const App = defineComponent({
+  methods: {
+    handleClick() {
+      console.log('Button clicked');
+    },
+  },
+  render() {
+    const handleClick = this.handleClick.bind(this);
+    return <MyComponent onClick={handleClick} />
+  }
+})
+```
