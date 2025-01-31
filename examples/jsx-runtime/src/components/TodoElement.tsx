@@ -13,10 +13,9 @@ export function TodoElement(props: {
   onDelete: () => void;
   onChange: (value: Partial<Pick<Todo, 'value' | 'completed'>>) => void;
   completed?: boolean;
-  index: number;
 }) {
   return (
-    <li class={`todo-item ${props.completed ? 'completed' : ''}`} style={{ '--i': props.index }}>
+    <li class={`todo-item ${props.completed ? 'completed' : ''}`}>
       <label class="todo-checkbox">
         <input
           hidden
