@@ -103,6 +103,8 @@ function mountComponentVNode(vnode: VNode, parentElement: Element, index?: numbe
   const ComponentClass = vnode.type as ComponentInstance;
   const props = vnode.props;
 
+  // TODO pass children/slot content
+  // props['children'] = vnode.children;
   // Initialize and mount the component.
   const component = new ComponentClass(props, vnode.children);
   component.mount(parentElement, index);

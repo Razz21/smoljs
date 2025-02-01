@@ -86,6 +86,10 @@ export abstract class Component<TProps, TState> {
     this.onUnmounted();
   }
 
+  forceUpdate() {
+    this.#patch();
+  }
+
   #patch() {
     if (!this.#isMounted) {
       throw new Error('Component is not mounted');

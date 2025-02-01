@@ -73,6 +73,10 @@ function patchComponent(oldVdom: VNode, newVdom: VNode) {
 
   component.updateProps(props);
   newVdom.component = component;
+  newVdom.component.children = newVdom.children;
+
+  // TODO: patchChildren of class components
+  newVdom.component.forceUpdate();
   newVdom.el = component.firstElement;
 }
 

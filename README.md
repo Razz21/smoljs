@@ -34,6 +34,7 @@ The `Smol.js` project is organized into several packages:
 
 - `packages/runtime`: Contains the core implementation of the framework, including the virtual DOM, component system, and rendering logic.
 - `packages/smoljs`: Provides support for JSX and serves as the main entry point for the framework.
+- `packages/router`: Simple router implementation for single-page applications.
 
 # Examples
 
@@ -42,6 +43,7 @@ Check out the examples in the examples directory:
 - `examples/benchmark` - Simple rendering performance benchmark.
 - `examples/hello-world` - Basic counter example showing the usage of `Smol.js`.
 - `examples/jsx-runtime` - Todo app example using JSX syntax and runtime compilation setup.
+- `examples/router` - Router example using the `@smoljs/router` package.
 
 # Getting Started
 

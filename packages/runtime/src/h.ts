@@ -13,8 +13,8 @@ import {
   isFunctionComponent,
 } from '@/vdom';
 
-type ElementProps<T extends ElementTag> = WritableAttributes<HTMLElementTagNameMap[T]>;
-type InferComponentProps<T> = T extends ComponentInstance
+export type ElementProps<T extends ElementTag> = WritableAttributes<HTMLElementTagNameMap[T]>;
+export type InferComponentProps<T> = T extends ComponentInstance
   ? InferProps<T>
   : T extends FunctionComponent<any>
     ? Parameters<T>[0]
