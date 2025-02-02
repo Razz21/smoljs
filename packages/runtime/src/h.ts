@@ -9,7 +9,6 @@ import {
   type VNodeProps,
   createFragmentVNode,
   createVNode,
-  isClassComponent,
   isFunctionComponent,
 } from '@/vdom';
 
@@ -31,21 +30,12 @@ export function h<T extends ElementTag>(
   children?: VNodeChildren[] | null
 ): VNode;
 export function h(type: any, props?: any, children?: VNodeChildren[] | null) {
-  if (typeof type === 'string') {
-    return createVNode(type, props, children);
+  if (!(typeof type === 'string' || typeof type === 'function')) {
+    throw new Error(
+      `Invalid component type passed to "h": expected a string, class component, or function component but received ${typeof type} (${type}).`
+    );
   }
-  if (isClassComponent(type)) {
-    return createVNode(type, props, children);
-  }
-  if (isFunctionComponent(type)) {
-    return type(props, { children }) as any;
-  }
-
-  throw new Error(
-    `Invalid component type passed to "h": expected a string, class component, or function component but received ${typeof type} (${type}).`
-  );
+  return createVNode(type, props, children);
 }
 
-export function hFragment(vNodes: VNodeChildren[]): VNode {
-  return createFragmentVNode(vNodes);
-}
+export const hFragment = createFragmentVNode;

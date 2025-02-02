@@ -1,5 +1,5 @@
 import { removeEventListeners } from '@/events';
-import { type VNode, isClassComponentVNode } from '@/vdom';
+import { type VNode, isClassComponentVNode, isFunctionComponentVNode } from '@/vdom';
 
 /**
  * Recursively destroys a VNode and its children, unmounting components and cleaning up DOM elements.
@@ -7,9 +7,13 @@ import { type VNode, isClassComponentVNode } from '@/vdom';
 export function destroyVNode(vnode: VNode): void {
   if (isClassComponentVNode(vnode)) {
     destroyComponentVNode(vnode);
-  } else {
-    destroyElementVNode(vnode);
+    return;
   }
+  if (isFunctionComponentVNode(vnode)) {
+    destroyVNode(vnode.component);
+    return;
+  }
+  destroyElementVNode(vnode);
 }
 
 /**

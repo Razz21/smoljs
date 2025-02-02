@@ -46,4 +46,19 @@ describe('destroyVNode', () => {
     expect(parentVNode.el.isConnected).toBeFalsy();
     expect(childVNode.el.isConnected).toBeFalsy();
   });
+
+  it('should destroy a function VNode', () => {
+    const FunctionComponent = () => createVNode('span');
+    const vnode = createVNode(FunctionComponent);
+
+    const root = document.createElement('div');
+
+    mountVNode(vnode, root);
+    expect(root.children).toHaveLength(1);
+
+    destroyVNode(vnode);
+
+    expect(root.children).toHaveLength(0);
+    expect(vnode.component.el.isConnected).toBeFalsy();
+  });
 });

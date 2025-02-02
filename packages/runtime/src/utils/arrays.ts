@@ -47,8 +47,8 @@ export class IndexedArrayTracker<T> {
   isRemovedFromArray(currentIndex: number, updatedArray: ReadonlyArray<T>): boolean {
     if (currentIndex >= this.length) return false;
     const compareFn = this.#compareFn;
-    const trackedArray = this.#trackedArray;
-    return !updatedArray.some((updatedItem) => compareFn(trackedArray[currentIndex], updatedItem));
+    const currentItem = this.#trackedArray[currentIndex]
+    return !updatedArray.some((updatedItem) => compareFn(currentItem, updatedItem));
   }
 
   isUnchangedItem(currentIndex: number, updatedArray: ReadonlyArray<T>): boolean {

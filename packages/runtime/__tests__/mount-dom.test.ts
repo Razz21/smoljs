@@ -48,6 +48,28 @@ describe('mountVNode', () => {
     expect(root.children).toHaveLength(1);
   });
 
+  it('should mount a function component VNode to the DOM', () => {
+    const FunctionComponent = () => createVNode('div');
+
+    const vnode = createVNode(FunctionComponent);
+    const root = document.createElement('div');
+
+    mountVNode(vnode, root);
+
+    expect(root.children).toHaveLength(1);
+  });
+
+  it("should not mount a function component VNode if it doesn't return a VNode", () => {
+    const FunctionComponent = () => 123;
+
+    const vnode = createVNode(FunctionComponent as any);
+    const root = document.createElement('div');
+
+    mountVNode(vnode, root);
+
+    expect(root.children).toHaveLength(0);
+  });
+
   it('should throw an error for an invalid type', () => {
     const root = document.createElement('div');
 

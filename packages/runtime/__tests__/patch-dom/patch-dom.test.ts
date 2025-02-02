@@ -104,6 +104,48 @@ describe('patch-dom', () => {
     });
   });
 
+  describe('function component nodes', () => {
+    it('should update function component', () => {
+      const root = document.createElement('div');
+      const FunctionComponent = (props) => createVNode('div', null, [props.text]);
+
+      const oldVNode = createVNode(FunctionComponent, { text: 'old' });
+      const newVNode = createVNode(FunctionComponent, { text: 'new' });
+
+      mountVNode(oldVNode, root);
+      patchDOM(oldVNode, newVNode, root);
+
+      expect(root.textContent).toBe('new');
+    });
+
+    it('should handle function component returning null', () => {
+      const root = document.createElement('div');
+      const FunctionComponent = (props: {show: boolean}) =>
+        props.show ? createVNode('div', null, ['visible']) : null;
+
+      const oldVNode = createVNode(FunctionComponent, { show: true });
+      const newVNode = createVNode(FunctionComponent, { show: false });
+
+      mountVNode(oldVNode, root);
+      patchDOM(oldVNode, newVNode, root);
+
+      expect(root.textContent).toBe('');
+    });
+
+    it('should update function component with children', () => {
+      const root = document.createElement('div');
+      const FunctionComponent = (_props, { children }) => createVNode('div', null, children);
+
+      const oldVNode = createVNode(FunctionComponent, null, [createVNode('span', null, ['old'])]);
+      const newVNode = createVNode(FunctionComponent, null, [createVNode('span', null, ['new'])]);
+
+      mountVNode(oldVNode, root);
+      patchDOM(oldVNode, newVNode, root);
+
+      expect(root.textContent).toBe('new');
+    });
+  });
+
   describe.todo('error handling', () => {
     it.todo('should handle null elements gracefully', () => {
       const root = document.createElement('div');
@@ -209,15 +251,36 @@ describe('patch-dom', () => {
       ]);
       const newVNode = createVNode('div', null, [
         createFragmentVNode([
-          createVNode('span', null, ['new1']),
-          createVNode('span', null, ['new2']),
+          createVNode('span', null, ['Hello ']),
+          createVNode('span', null, ['World']),
         ]),
       ]);
 
       mountVNode(oldVNode, root);
       patchDOM(oldVNode, newVNode, root);
 
-      expect(root.textContent).toBe('new1new2');
+      expect(root.textContent).toBe('Hello World');
+    });
+
+    it('should handle fragment conditional children updates', () => {
+      const root = document.createElement('div');
+
+      const oldVNode = createFragmentVNode([
+        createVNode('span', null, ['Hello ']),
+        null,
+        createVNode('span', null, ['from ']),
+        createVNode('div', null, ['Vitest']),
+      ]);
+      const newVNode = createFragmentVNode([
+        createVNode('span', null, ['Hello ']),
+        createVNode('span', null, ['World ']),
+        createVNode('span', null, ['from ']),
+        createVNode('div', null, ['Vitest']),
+      ]);
+      mountVNode(oldVNode, root);
+      patchDOM(oldVNode, newVNode, root);
+
+      expect(root.textContent).toBe('Hello World from Vitest');
     });
   });
 

@@ -1,7 +1,7 @@
 import { defineComponent } from '@/component';
 import {
-  FragmentVNode,
-  TextVNode,
+  FragmentVNodeType,
+  TextVNodeType,
   createFragmentVNode,
   createTextVNode,
   createVNode,
@@ -46,7 +46,7 @@ describe('vdom/vnode', () => {
     const textVNode = createTextVNode('Hello');
     expect(textVNode).toMatchObject({
       _isVNode: true,
-      type: TextVNode,
+      type: TextVNodeType,
       props: { nodeValue: 'Hello' },
       children: [],
       el: null,
@@ -60,7 +60,7 @@ describe('vdom/vnode', () => {
     const fragmentVNode = createFragmentVNode([]);
     expect(fragmentVNode).toMatchObject({
       _isVNode: true,
-      type: FragmentVNode,
+      type: FragmentVNodeType,
       props: {},
       children: [],
       el: null,

@@ -1,12 +1,6 @@
-import { type VNode, isFragmentVNode, isTextVNode } from '@/vdom';
-
-export const isPrototypeOf = Function.call.bind(Object.prototype.isPrototypeOf);
+import { type VNode, isFragmentVNode } from '@/vdom';
 
 export function extractChildNodes(vnode: VNode): VNode[] {
-  if (!vnode.children || isTextVNode(vnode)) {
-    return [];
-  }
-
   const extractedChildren: VNode[] = [];
 
   for (const child of vnode.children) {

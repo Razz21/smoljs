@@ -2,11 +2,14 @@ import { applyAttributes } from '@/attributes';
 import type { Component, ComponentInstance } from '@/component';
 import { addEventListeners } from '@/events';
 import {
+  type FunctionComponentVNode,
   type VNode,
   isClassComponentVNode,
   isElementVNode,
   isFragmentVNode,
+  isFunctionComponentVNode,
   isTextVNode,
+  isVNode,
 } from '@/vdom';
 
 /**
@@ -20,6 +23,8 @@ export function mountVNode(
 ): void {
   if (isClassComponentVNode(vnode)) {
     mountComponentVNode(vnode, parentElement, index);
+  } else if (isFunctionComponentVNode(vnode)) {
+    mountFunctionComponentVNode(vnode, parentElement, index, hostComponent);
   } else if (isTextVNode(vnode)) {
     mountTextVNode(vnode, parentElement, index);
   } else if (isFragmentVNode(vnode)) {
@@ -109,6 +114,30 @@ function mountComponentVNode(vnode: VNode, parentElement: Element, index?: numbe
 
   vnode.component = component;
   vnode.el = component.firstElement;
+}
+
+/**
+ * Mounts a function component VNode to the DOM.
+ */
+function mountFunctionComponentVNode(
+  vnode: FunctionComponentVNode,
+  parentElement: Element,
+  index?: number,
+  hostComponent?: Component<unknown, unknown>
+): void {
+  const functionComponent = vnode.type;
+  const { props, children } = vnode;
+
+  const result = functionComponent(props, { children });
+
+  if (!isVNode(result)) {
+    console.warn(`Function component extected to return a VNode, received: ${result}`);
+    return;
+  }
+
+  vnode.component = result;
+  vnode.el = result.el;
+  mountVNode(result, parentElement, index, hostComponent);
 }
 
 /**

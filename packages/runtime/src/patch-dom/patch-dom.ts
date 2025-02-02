@@ -7,7 +7,15 @@ import {
   extractChildNodes,
   generateArrayTransformationSequence,
 } from '@/utils';
-import { type VNode, isClassComponentVNode, isElementVNode, isTextVNode } from '@/vdom';
+import {
+  type FunctionComponentVNode,
+  type VNode,
+  isClassComponentVNode,
+  isElementVNode,
+  isFragmentVNode,
+  isFunctionComponentVNode,
+  isTextVNode,
+} from '@/vdom';
 import { patchAttrs } from './patch-attrs';
 import { patchClasses } from './patch-classes';
 import { patchEvents } from './patch-events';
@@ -34,14 +42,18 @@ export function patchDOM(
   }
   if (isClassComponentVNode(newVdom)) {
     patchComponent(oldVdom, newVdom);
-    // TODO: patchChildren for class components
+    // TODO: patchChildren of class components
+    return newVdom;
+  }
+  if (isFunctionComponentVNode(newVdom)) {
+    patchFunctionComponent(oldVdom, newVdom, parentEl, hostComponent);
     return newVdom;
   }
 
   if (isElementVNode(newVdom)) {
     patchElement(oldVdom, newVdom, hostComponent);
   }
-
+  // Patch children of element and fragment nodes
   patchChildren(oldVdom, newVdom, hostComponent);
   return newVdom;
 }
@@ -85,9 +97,13 @@ function patchChildren(
   const newChildren = extractChildNodes(newVdom);
   const parentEl = oldVdom.el as Element;
   const diffSeq = generateArrayTransformationSequence(oldChildren, newChildren, areVNodeNodesEqual);
-  diffSeq.forEach(({ op, index, originalIndex, item }) => {
-    const offset = hostComponent?.offset ?? 0;
 
+  // Offset is a position within the parent element where the vnode should be shifted to.
+  // When a vNode is FragmentVNode, the offset is the index of the first child node within the closest parent element,
+  // otherwise, vnode's position is not affected by the offset.
+  const offset = isFragmentVNode(newVdom) ? (hostComponent?.offset ?? 0) : 0;
+
+  diffSeq.forEach(({ op, index, originalIndex, item }) => {
     switch (op) {
       case ArrayDiffOperationType.ADD:
         mountVNode(item, parentEl, index + offset, hostComponent);
@@ -109,4 +125,24 @@ function patchChildren(
         break;
     }
   });
+}
+
+function patchFunctionComponent(
+  oldVdom: VNode,
+  newVdom: VNode,
+  parentEl: Element,
+  hostComponent?: Component<unknown, unknown>
+) {
+  const { children, props, type: functionComponent } = newVdom as FunctionComponentVNode;
+  const newResult = functionComponent(props, { children });
+
+  if (newResult === null) {
+    // Destroy the old result
+    destroyVNode(oldVdom.component);
+    return;
+  }
+
+  newVdom.component = newResult;
+  newVdom.el = newResult.el;
+  patchDOM(oldVdom.component, newResult, parentEl, hostComponent);
 }
