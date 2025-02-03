@@ -18,7 +18,7 @@ describe('h', () => {
   it('should create a VNode for a function component', () => {
     const TestComponent = (props: any, children: any) => createVNode('span', props, children);
     const vnode = h(TestComponent, { prop: 'value' }, ['Child']);
-    expect(vnode).toMatchObject(TestComponent({ prop: 'value' }, { children: ['Child'] }));
+    expect(vnode).toMatchObject(createVNode(TestComponent, { prop: 'value' }, ['Child']));
   });
 
   it('should throw an error for an invalid type', () => {

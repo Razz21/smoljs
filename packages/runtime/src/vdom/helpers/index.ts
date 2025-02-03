@@ -1,5 +1,6 @@
 import { filterNonNullable } from '@/utils';
-import { type VNode, type VNodeChildren, createTextVNode, isVNode } from '../vnode';
+import type { VNode, VNodeChildren } from '../types';
+import { createTextVNode, isVNode } from '../vnode';
 
 export function toVNode(children: VNodeChildren[]): VNode[] {
   return children.map((child) => (isVNode(child) ? child : createTextVNode(String(child))));

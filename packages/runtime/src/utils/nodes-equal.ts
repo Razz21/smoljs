@@ -5,15 +5,5 @@ export function areVNodeNodesEqual(nodeA: VNode, nodeB: VNode): boolean {
     return false;
   }
 
-  const {
-    type: typeA,
-    props: { key: keyA },
-  } = nodeA;
-  const {
-    type: typeB,
-    props: { key: keyB },
-  } = nodeB as typeof nodeA;
-
-  // TODO: test performance of this approach
-  return typeA === typeB && keyA === keyB;
+  return nodeA.props.key === nodeB.props.key;
 }

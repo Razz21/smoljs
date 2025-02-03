@@ -2,7 +2,7 @@ import { destroyVNode } from '@/destroy-dom';
 import { mountVNode } from '@/mount-dom';
 import { patchDOM } from '@/patch-dom';
 import { extractChildNodes } from '@/utils';
-import { type VNode, isClassComponent, isElementVNode, isFragmentVNode } from '@/vdom';
+import { type VNode, isClassComponentVNode, isElementVNode, isFragmentVNode } from '@/vdom';
 import equals from 'fast-deep-equal';
 
 export abstract class Component<TProps, TState> {
@@ -123,11 +123,8 @@ export abstract class Component<TProps, TState> {
   }
 
   #extractFragmentElements(): Element[] {
-    return extractChildNodes(this.#vdom).flatMap((child) => {
-      if (isClassComponent(child.type)) {
-        return child.component.elements;
-      }
-      return child.el as Element;
-    });
+    return extractChildNodes(this.#vdom).flatMap((child) =>
+      isClassComponentVNode(child) ? child.component.elements : child.el
+    );
   }
 }

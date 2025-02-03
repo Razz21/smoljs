@@ -11,6 +11,29 @@ describe('addEventListener', () => {
     expect(handler).toHaveBeenCalled();
     expect(wrappedHandler).toBeInstanceOf(Function);
   });
+
+  it('should call the handler with the correct context when hostComponent is provided', () => {
+    const element = document.createElement('div');
+    const handler = vi.fn();
+    const hostComponent = { someMethod: vi.fn() };
+
+    addEventListener('click', handler, element, hostComponent as any);
+
+    element.dispatchEvent(new Event('click'));
+    expect(handler).toHaveBeenCalled();
+    expect(handler.mock.instances[0]).toBe(hostComponent);
+  });
+
+  it('should call the handler without context when hostComponent is not provided', () => {
+    const element = document.createElement('div');
+    const handler = vi.fn();
+
+    addEventListener('click', handler, element);
+
+    element.dispatchEvent(new Event('click'));
+    expect(handler).toHaveBeenCalled();
+    expect(handler.mock.instances[0]).toBeUndefined();
+  });
 });
 
 describe('addEventListeners', () => {
@@ -21,6 +44,7 @@ describe('addEventListeners', () => {
 
     element.dispatchEvent(new Event('click'));
     element.dispatchEvent(new Event('mouseover'));
+
     expect(handlers.click).toHaveBeenCalled();
     expect(handlers.mouseover).toHaveBeenCalled();
     expect(activeListeners.click).toBeInstanceOf(Function);
