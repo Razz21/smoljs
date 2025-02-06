@@ -45,7 +45,9 @@ export const routes = [
 Package uses [`path-to-regexp`](https://github.com/pillarjs/path-to-regexp/) library to match paths. You can use dynamic segments in your paths by using `:name` syntax. For example, `/profile/:id` will match `/profile/1`, `/profile/2`, etc. For the best experience and type safety all paths should start with a leading slash `/`.
 
 
-> [!NOTE] Managing Routes 
+> [!NOTE] 
+> **Managing Routes**
+>  
 > Order of routes is important. The first route that matches the current URL will be rendered. If you have a catch-all route, make sure it is the last route in the array.
 
 ### Initialize Router
@@ -173,7 +175,9 @@ router.push({ pathname: '/profile/:id', params: { id: 1 }, search: { hello: "wor
 
 ```
 
-> [!NOTE] RouterLink component and paths 
+> [!NOTE] 
+> **RouterLink component and paths**
+>  
 > Currently `RouterLink` component does not support path route object. It is recommended to use raw string path instead.
 > 
 > ```typescript

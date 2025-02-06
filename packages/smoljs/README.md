@@ -9,7 +9,10 @@
 
 ## JSX/TSX Support
 
-> [!WARNING] JSX/TSX Setup
+> [!WARNING] 
+> 
+> **JSX/TSX Setup**
+> 
 > Following steps below will guide you through setting up JSX/TSX support in your Vite app. 
 > If you're using a different bundler, refer to the respective documentation for JSX/TSX setup.
 
