@@ -16,10 +16,10 @@ importers:
         version: 22.10.7
       '@vitest/coverage-v8':
         specifier: 3.0.4
-        version: 3.0.4(vitest@3.0.5(@types/node@22.10.7)(happy-dom@16.7.2)(yaml@2.6.1))
+        version: 3.0.4(vitest@3.0.5(@types/node@22.10.7)(happy-dom@17.1.1)(yaml@2.6.1))
       happy-dom:
-        specifier: ^16.7.2
-        version: 16.7.2
+        specifier: ^17.1.1
+        version: 17.1.1
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -37,7 +37,7 @@ importers:
         version: 4.5.0(@types/node@22.10.7)(rollup@4.31.0)(typescript@5.7.3)(vite@6.0.11(@types/node@22.10.7)(yaml@2.6.1))
       vitest:
         specifier: ^3.0.5
-        version: 3.0.5(@types/node@22.10.7)(happy-dom@16.7.2)(yaml@2.6.1)
+        version: 3.0.5(@types/node@22.10.7)(happy-dom@17.1.1)(yaml@2.6.1)
 
   examples/benchmark:
     dependencies:
@@ -822,8 +822,8 @@ packages:
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
-  happy-dom@16.7.2:
-    resolution: {integrity: sha512-zOzw0xyYlDaF/ylwbAsduYZZVRTd5u7IwlFkGbEathIeJMLp3vrN3cHm3RS7PZpD9gr/IO16bHEswcgNyWTsqw==}
+  happy-dom@17.1.1:
+    resolution: {integrity: sha512-OSTkBlmD/6Do7gCd7nZB5iFq1bF9VQg/iFmjHmxvVX2S1UiOpo6sT+aFNnu3XUsB8hCZb9+GZ0G1g1TaMiAggw==}
     engines: {node: '>=18.0.0'}
 
   has-flag@4.0.0:
@@ -1662,7 +1662,7 @@ snapshots:
     dependencies:
       undici-types: 6.20.0
 
-  '@vitest/coverage-v8@3.0.4(vitest@3.0.5(@types/node@22.10.7)(happy-dom@16.7.2)(yaml@2.6.1))':
+  '@vitest/coverage-v8@3.0.4(vitest@3.0.5(@types/node@22.10.7)(happy-dom@17.1.1)(yaml@2.6.1))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 1.0.2
@@ -1676,7 +1676,7 @@ snapshots:
       std-env: 3.8.0
       test-exclude: 7.0.1
       tinyrainbow: 2.0.0
-      vitest: 3.0.5(@types/node@22.10.7)(happy-dom@16.7.2)(yaml@2.6.1)
+      vitest: 3.0.5(@types/node@22.10.7)(happy-dom@17.1.1)(yaml@2.6.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -1984,7 +1984,7 @@ snapshots:
 
   graceful-fs@4.2.11: {}
 
-  happy-dom@16.7.2:
+  happy-dom@17.1.1:
     dependencies:
       webidl-conversions: 7.0.0
       whatwg-mimetype: 3.0.0
@@ -2420,7 +2420,7 @@ snapshots:
       fsevents: 2.3.3
       yaml: 2.6.1
 
-  vitest@3.0.5(@types/node@22.10.7)(happy-dom@16.7.2)(yaml@2.6.1):
+  vitest@3.0.5(@types/node@22.10.7)(happy-dom@17.1.1)(yaml@2.6.1):
     dependencies:
       '@vitest/expect': 3.0.5
       '@vitest/mocker': 3.0.5(vite@6.0.11(@types/node@22.10.7)(yaml@2.6.1))
@@ -2444,7 +2444,7 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 22.10.7
-      happy-dom: 16.7.2
+      happy-dom: 17.1.1
     transitivePeerDependencies:
       - jiti
       - less
