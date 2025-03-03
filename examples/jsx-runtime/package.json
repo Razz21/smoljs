@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "typescript": "^5.5.4",
-    "vite": "^6.0.0"
+    "vite": "^6.2.0"
   },
   "dependencies": {
     "smoljs": "workspace:*"
